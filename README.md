@@ -1,74 +1,26 @@
-# React + TypeScript + Vite
+🧠 Synapse AI: Neural Focus Engine
+Synapse AI is a high-performance study companion that merges a gamified Pomodoro timer with a context-aware AI assistant. Designed with a "Deep Space" aesthetic, it helps users maintain focus, explain complex topics (ELI5), and generate study materials from uploaded files.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+✨ Key Features
+⚡ Proactive AI Coaching: The AI doesn't just wait for you to talk; it monitors your focus sessions. It provides positive reinforcement upon completion and motivational nudges if you pause early.
 
-Currently, two official plugins are available:
+📂 Neural File Sync: Upload text files (PDF, TXT, MD, JSON) or images. The AI instantly analyzes the content to answer questions, generate flashcards, or build custom tests.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+🎮 Gamified Progression: Earn NX Energy points for every second of focus. Level up through 30 unique ranks—from Initiate to The Synapse.
 
-## React Compiler
+⏲️ Adaptive Pomodoro: Toggle between Focus, Short Break, and Long Break modes with a fluid, responsive interface.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+🌌 Dynamic Cosmos UI: A mouse-reactive starfield background that shifts colors based on your current rank level.
 
-## Expanding the ESLint configuration
+🎵 Integrated Focus Audio: A slide-out Spotify player to manage your study lo-fi without leaving the application.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+🚀 Tech Stack
+Framework: React 18 (TypeScript)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Intelligence: Google Gemini 1.5 Flash API
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Animation: Framer Motion (for physics-based transitions)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Styling: Tailwind CSS
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-"# Synapse-Web" 
+Icons: Lucide React
