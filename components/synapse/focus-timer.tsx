@@ -1,6 +1,6 @@
 "use client"
 
-import { Pause, Play, RotateCcw } from "lucide-react"
+import { ExternalLink, Pause, Play, RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { TimerMode } from "@/hooks/use-focus-timer"
 import { TimerSettings } from "./timer-settings"
@@ -96,6 +96,21 @@ export function FocusTimer({
           <RotateCcw className="size-5" />
         </button>
         <TimerSettings focusMin={durations.focus} breakMin={durations.break} onChange={updateDuration} />
+        <button
+          type="button"
+          onClick={() => {
+            window.open(
+              "/popout",
+              "synapse-timer-popout",
+              "width=360,height=320,menubar=no,toolbar=no,location=no,status=no,resizable=yes",
+            )
+          }}
+          aria-label="Pop out timer"
+          title="Pop out timer"
+          className="inline-flex size-11 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        >
+          <ExternalLink className="size-5" />
+        </button>
       </div>
     </div>
   )

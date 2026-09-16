@@ -20,36 +20,36 @@ const slides: Slide[] = [
     Icon: Timer,
     accent: "text-primary",
     bg: "bg-primary/15",
-    title: "Deep Focus Sessions",
-    body: "25-minute focus and 5-minute break cycles that train your concentration over time.",
+    title: "Train your attention",
+    body: "Timed focus and break cycles — 25 minutes on, 5 off — that turn concentration into a daily habit.",
   },
   {
     Icon: Leaf,
     accent: "text-[#5cb85c]",
     bg: "bg-[#5cb85c]/15",
-    title: "Watch Your Garden Grow",
-    body: "A living plant that rises, blooms, and breathes while you stay on task.",
+    title: "Watch progress grow",
+    body: "Every session feeds a living plant that rises, unfurls, and blooms while you stay on task.",
   },
   {
     Icon: Brain,
     accent: "text-accent",
     bg: "bg-accent/15",
-    title: "AI Learning Toolkit",
-    body: "Five study companions powered by your choice of models — all streaming in real time.",
+    title: "Study with AI",
+    body: "Five quiet companions that stream answers in real time, using the model you choose.",
     features: [
-      { label: "Feynman", detail: "Explain a concept; Synapse grades it and finds the gaps." },
-      { label: "ELI5", detail: "Turns any hard topic into a story a 10-year-old gets." },
-      { label: "Flashcards", detail: "Pastes study notes and gets ready-to-review flashcard decks." },
-      { label: "Chat", detail: "An always-on study co-pilot that remembers your thread." },
-      { label: "Planner", detail: "Turns your goals into a realistic daily focus plan." },
+      { label: "Feynman", detail: "Teach it back — graded, with your gaps surfaced." },
+      { label: "ELI5", detail: "Any hard topic, retold so a ten-year-old gets it." },
+      { label: "Flashcards", detail: "Paste notes, get a review-ready deck." },
+      { label: "Chat", detail: "A co-pilot that keeps the thread with you." },
+      { label: "Planner", detail: "Goals in, a realistic day plan out." },
     ],
   },
   {
     Icon: Users,
     accent: "text-blue-400",
     bg: "bg-blue-400/15",
-    title: "Study Squads",
-    body: "Share streaks, challenge friends, and grow together.",
+    title: "Grow with squads",
+    body: "Share streaks, nudge friends along, and keep each other coming back.",
   },
 ]
 
@@ -118,28 +118,31 @@ export function IntroCarousel({ userName }: { userName: string }) {
         <p className="mb-8 text-center font-serif text-xl text-accent">
           Welcome, {userName}
         </p>
-        <div className="overflow-hidden">
+          <div className="h-[min(460px,62vh)] overflow-hidden">
           <div
             ref={trackRef}
-            className="flex transition-transform duration-500 ease-out"
+            className="flex h-full transition-transform duration-500 ease-out will-change-transform"
             style={{ transform: `translateX(-${current * 100}%)` }}
           >
             {slides.map(({ Icon, accent, bg, title, body, features }, i) => (
-              <div key={i} className="flex w-full shrink-0 flex-col items-center text-center">
-                <div className={cn("mb-8 flex size-20 items-center justify-center rounded-2xl", bg)}>
+              <div key={i} className="flex h-full w-full shrink-0 flex-col items-center justify-center overflow-y-auto px-4 text-center">
+                <div className={cn("mb-8 flex size-20 items-center justify-center rounded-2xl shadow-lg shadow-black/5 ring-1 ring-border", bg)}>
                   <Icon className={cn("size-9", accent)} strokeWidth={1.5} />
                 </div>
                 <h2 className="font-serif text-2xl text-foreground">{title}</h2>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
                 {features && (
-                  <div className="mt-5 w-full max-w-sm space-y-1.5 text-left">
+                  <ul className="mt-6 w-full max-w-xs divide-y divide-border/60 text-left">
                     {features.map((f) => (
-                      <div key={f.label} className="rounded-xl border border-border bg-card/50 px-4 py-2">
-                        <span className={cn("text-sm font-semibold", accent)}>{f.label}</span>
-                        <p className="text-xs leading-relaxed text-muted-foreground">{f.detail}</p>
-                      </div>
+                      <li key={f.label} className="flex items-baseline gap-3 py-2">
+                        <span aria-hidden className={cn("size-1 shrink-0 self-center rounded-full bg-current opacity-60", accent)} />
+                        <p className="text-[13px] leading-relaxed">
+                          <span className="font-medium text-foreground">{f.label}</span>
+                          <span className="text-muted-foreground"> — {f.detail}</span>
+                        </p>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 )}
               </div>
             ))}
@@ -147,6 +150,11 @@ export function IntroCarousel({ userName }: { userName: string }) {
         </div>
 
         <div className="mt-8 flex flex-col items-center gap-4">
+          <p className="font-mono text-[11px] tracking-[0.35em] text-muted-foreground/70">
+            {current + 1}
+            <span className="mx-1 text-muted-foreground/30">/</span>
+            {slides.length}
+          </p>
           <div className="flex items-center gap-2">
             {slides.map((_, i) => (
               <button
@@ -155,7 +163,7 @@ export function IntroCarousel({ userName }: { userName: string }) {
                 onClick={() => setCurrent(i)}
                 className={cn(
                   "size-2 rounded-full transition-all duration-300",
-                  i === current ? "w-6 bg-foreground" : "bg-muted-foreground/30",
+                  i === current ? "w-6 bg-foreground shadow-md shadow-foreground/20" : "bg-muted-foreground/30 hover:bg-muted-foreground/50",
                 )}
               />
             ))}
@@ -165,7 +173,7 @@ export function IntroCarousel({ userName }: { userName: string }) {
             <button
               type="button"
               onClick={finish}
-              className="rounded-full bg-primary px-8 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95"
+              className="flex w-40 items-center justify-center rounded-full bg-primary px-8 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95"
             >
               Get Started
             </button>
@@ -173,7 +181,7 @@ export function IntroCarousel({ userName }: { userName: string }) {
             <button
               type="button"
               onClick={() => go(1)}
-              className="rounded-full border border-border px-8 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent/10"
+              className="flex w-40 items-center justify-center rounded-full border border-border px-8 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent/10"
             >
               Next
             </button>

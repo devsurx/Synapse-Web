@@ -46,44 +46,23 @@ function startRain(ctx: AudioContext) {
 
   const gain = ctx.createGain()
   gain.gain.value = 0
-  gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.8)
-
-  // second high layer for the soft "hiss" of rain
-  const hissBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
-  const hissData = hissBuffer.getChannelData(0)
-  for (let i = 0; i < hissData.length; i++) {
-    hissData[i] = (Math.random() * 2 - 1) * 0.5
-  }
-  const hissSource = ctx.createBufferSource()
-  hissSource.buffer = hissBuffer
-  hissSource.loop = true
-  const hissFilter = ctx.createBiquadFilter()
-  hissFilter.type = "highpass"
-  hissFilter.frequency.value = 4000
-  const hissGain = ctx.createGain()
-  hissGain.gain.value = 0
-  hissGain.gain.linearRampToValueAtTime(0.035, ctx.currentTime + 0.8)
+  // the single rain body swells in gradually — several seconds to rise, no whoosh
+  gain.gain.linearRampToValueAtTime(0.16, ctx.currentTime + 5)
 
   source.connect(filter)
   filter.connect(gain)
   gain.connect(ctx.destination)
-  hissSource.connect(hissFilter)
-  hissFilter.connect(hissGain)
-  hissGain.connect(ctx.destination)
 
   source.start()
-  hissSource.start()
 
   return {
     source,
     gain,
-    hissSource,
-    hissGain,
   }
 }
 
 export function useAmbientRain() {
-  const [enabled, setEnabled] = useState(loadEnabled)
+  const [enabled, setEnabled] = useState(false)
   const [flash, setFlash] = useState(0)
   const ctxRef = useRef<AudioContext | null>(null)
   const rainRef = useRef<ReturnType<typeof startRain> | null>(null)
@@ -100,17 +79,27 @@ export function useAmbientRain() {
   const stop = useCallback(() => {
     runningRef.current = false
     clearThunder()
-    const rain = rainRef.current
+    const rain = rainRef.current as unknown as {
+      source?: AudioBufferSourceNode
+      gain?: GainNode
+      hissSource?: AudioBufferSourceNode
+      hissGain?: GainNode
+    } | null
     const ctx = ctxRef.current
     if (rain && ctx) {
       const now = ctx.currentTime
-      rain.gain.gain.cancelScheduledValues(now)
-      rain.gain.gain.setValueAtTime(rain.gain.gain.value, now)
-      rain.gain.gain.linearRampToValueAtTime(0, now + 0.5)
-      rain.hissGain.gain.cancelScheduledValues(now)
-      rain.hissGain.gain.setValueAtTime(rain.hissGain.gain.value, now)
-      rain.hissGain.gain.linearRampToValueAtTime(0, now + 0.5)
+      for (const g of [rain.gain, rain.hissGain]) {
+        if (!g) continue
+        try {
+          g.gain.cancelScheduledValues(now)
+          g.gain.setValueAtTime(g.gain.value, now)
+          g.gain.linearRampToValueAtTime(0, now + 0.5)
+        } catch {
+          /* already torn down */
+        }
+      }
       for (const s of [rain.source, rain.hissSource]) {
+        if (!s) continue
         try {
           s.stop(now + 0.6)
         } catch {
@@ -158,6 +147,12 @@ export function useAmbientRain() {
       clearThunder()
       thunderTimeoutRef.current = setTimeout(() => {
         if (!runningRef.current) return
+        // Skip the visual strike while the tab is hidden — audio still rumbles,
+        // but no state churn / re-renders happen in the background.
+        if (typeof document !== "undefined" && document.hidden) {
+          scheduleThunder(ctx)
+          return
+        }
         playThunder(ctx)
         setFlash((f) => f + 1)
         scheduleThunder(ctx)

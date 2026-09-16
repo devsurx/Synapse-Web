@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 
 const CLOUDS = [
@@ -32,36 +32,111 @@ function Cloud({ opacity }: { opacity: number }) {
   )
 }
 
+interface Strike {
+  id: number
+  /** horizontal origin of the bolt, in % of viewport width */
+  x: number
+  /** peak brightness multiplier 0.7–1 */
+  intensity: number
+  main: string
+  branch: string
+}
+
+/** Build a jagged bolt path in a 0–100 viewBox, descending from the clouds. */
+function buildBolt(x: number, seed: number): { main: string; branch: string } {
+  let rand = seed
+  const next = () => {
+    rand = (rand * 16807) % 2147483647
+    return rand / 2147483647
+  }
+  const pts: string[] = []
+  let cx = x
+  let cy = -2
+  pts.push(`M ${cx.toFixed(1)} ${cy.toFixed(1)}`)
+  const segments = 8 + Math.floor(next() * 3)
+  const endY = 42 + next() * 18
+  const forkAt = 3 + Math.floor(next() * 3)
+  let forkX = x
+  let forkY = 0
+  for (let i = 0; i < segments; i++) {
+    cy += endY / segments
+    cx += (next() - 0.5) * 7
+    pts.push(`L ${cx.toFixed(1)} ${cy.toFixed(1)}`)
+    if (i === forkAt) {
+      forkX = cx
+      forkY = cy
+    }
+  }
+  const main = pts.join(" ")
+  // a short fork splitting off mid-bolt, dimmer and thinner
+  const bPts = [`M ${forkX.toFixed(1)} ${forkY.toFixed(1)}`]
+  let bx = forkX
+  let by = forkY
+  for (let i = 0; i < 4; i++) {
+    by += 4 + next() * 5
+    bx += (next() - 0.35) * 8
+    bPts.push(`L ${bx.toFixed(1)} ${by.toFixed(1)}`)
+  }
+  return { main, branch: bPts.join(" ") }
+}
+
 export function StormLayer({ enabled, flash }: { enabled: boolean; flash: number }) {
-  const [flashing, setFlashing] = useState(false)
+  const [visible, setVisible] = useState(enabled)
+  const [strike, setStrike] = useState<Strike | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
+    if (!enabled) {
+      const id = setTimeout(() => {
+        setVisible(false)
+        setStrike(null)
+      }, 2400)
+      return () => clearTimeout(id)
+    }
+    setVisible(true)
+    return undefined
+  }, [enabled])
+
+  useEffect(() => {
     if (flash === 0) return
-    setFlashing(true)
+    // Don't light up a background tab — the hook already skips scheduling
+    // flashes there, this is a second guard for stale timeouts.
+    if (typeof document !== "undefined" && document.hidden) return
+    const x = 12 + Math.random() * 76
+    const seed = Math.floor(Math.random() * 1_000_000) + 1
+    const { main, branch } = buildBolt(x, seed)
+    setStrike({
+      id: flash,
+      x,
+      intensity: 0.7 + Math.random() * 0.3,
+      main,
+      branch,
+    })
     if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => setFlashing(false), 900)
+    // Strike flicker lasts ~750ms; then the sky settles back to dark.
+    timerRef.current = setTimeout(() => setStrike(null), 800)
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
   }, [flash])
 
-  if (!enabled) return null
+  const skyGlow = useMemo(() => {
+    if (!strike) return undefined
+    return {
+      background: `radial-gradient(52% 38% at ${strike.x.toFixed(1)}% 0%, rgba(191,219,254,${(0.5 * strike.intensity).toFixed(2)}) 0%, rgba(147,197,253,${(0.22 * strike.intensity).toFixed(2)}) 34%, rgba(99,102,241,${(0.1 * strike.intensity).toFixed(2)}) 55%, transparent 72%), linear-gradient(to bottom, rgba(224,242,254,${(0.16 * strike.intensity).toFixed(2)}) 0%, transparent 46%)`,
+    } as React.CSSProperties
+  }, [strike])
+
+  if (!visible) return null
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-30 overflow-hidden">
-      {/* lightning flash */}
-      <div
-        className="absolute inset-0 bg-sky-100/45 mix-blend-screen transition-opacity duration-300"
-        style={{ animation: flashing ? undefined : "synapse-lightning 0s none", opacity: flashing ? 0.9 : 0 }}
-      />
-
-      {/* slow thunder-gradient pulse on the flash card */}
-      <div
-        className={cn("absolute inset-0 bg-indigo-300/20 mix-blend-soft-light transition-opacity duration-[1400ms]")}
-        style={{ opacity: flashing ? 0.7 : 0 }}
-      />
-
+    <div
+      aria-hidden
+      className={cn(
+        "pointer-events-none fixed inset-0 z-30 overflow-hidden transition-opacity duration-[2400ms] ease-in-out",
+        enabled ? "opacity-100" : "opacity-0",
+      )}
+    >
       {/* drifting storm clouds */}
       {CLOUDS.map((c, i) => (
         <div
@@ -82,6 +157,67 @@ export function StormLayer({ enabled, flash }: { enabled: boolean; flash: number
       {/* rain streaks */}
       <div className="absolute inset-0 opacity-70 rain-layer" />
       <div className="absolute inset-0 opacity-40 rain-layer" style={{ animationDuration: "0.7s" }} />
+
+      {/* lightning: localized sky illumination + a jagged bolt, never a full white wash */}
+      {strike && (
+        <div key={strike.id} className="absolute inset-0 mix-blend-screen">
+          <div
+            className="absolute inset-0"
+            style={{
+              ...skyGlow,
+              animation: "synapse-lightning-glow 0.8s ease-out both",
+            }}
+          />
+          <svg
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            className="absolute inset-0 h-full w-full"
+            style={{ animation: "synapse-bolt-flicker 0.8s ease-out both" }}
+          >
+            {/* soft halo */}
+            <path
+              d={strike.main}
+              fill="none"
+              stroke="rgba(147,197,253,0.55)"
+              strokeWidth="1.6"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              style={{ filter: "blur(2.5px)" }}
+            />
+            <path
+              d={strike.branch}
+              fill="none"
+              stroke="rgba(147,197,253,0.4)"
+              strokeWidth="1.1"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              style={{ filter: "blur(2px)" }}
+            />
+            {/* hot core */}
+            <path
+              d={strike.main}
+              fill="none"
+              stroke={`rgba(240,249,255,${(0.95 * strike.intensity).toFixed(2)})`}
+              strokeWidth="0.55"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              style={{ filter: "drop-shadow(0 0 3px rgba(191,219,254,0.9))" }}
+            />
+            <path
+              d={strike.branch}
+              fill="none"
+              stroke="rgba(224,242,254,0.8)"
+              strokeWidth="0.35"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
+        </div>
+      )}
 
       {/* vignette */}
       <div

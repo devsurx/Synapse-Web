@@ -35,13 +35,14 @@ function todayKey(): string {
 }
 
 export function useFocusTimer() {
-  const [durations, setDurations] = useState(loadDurations)
+  const [durations, setDurations] = useState({ focusMin: DEFAULT_FOCUS_MIN, breakMin: DEFAULT_BREAK_MIN })
   const [mode, setModeState] = useState<TimerMode>("focus")
   const [secondsLeft, setSecondsLeft] = useState(() => durations.focusMin * 60)
   const [isRunning, setIsRunning] = useState(false)
   const [todaySessions, setTodaySessions] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const completionHandledRef = useRef(false)
+  const channelRef = useRef<BroadcastChannel | null>(null)
 
   const clear = useCallback(() => {
     if (intervalRef.current) {
@@ -55,6 +56,13 @@ export function useFocusTimer() {
       setTodaySessions(stats.days[todayKey()]?.sessions ?? 0)
     })
     return unsub
+  }, [])
+
+  useEffect(() => {
+    const saved = loadDurations()
+    setDurations((prev) =>
+      saved.focusMin !== prev.focusMin || saved.breakMin !== prev.breakMin ? saved : prev,
+    )
   }, [])
 
   useEffect(() => {
@@ -83,6 +91,40 @@ export function useFocusTimer() {
       completionHandledRef.current = false
     }
   }, [mode, isRunning, secondsLeft])
+
+  // Keep the pop-out mini timer in sync (live channel + snapshot for fresh opens).
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    try {
+      channelRef.current ??= new BroadcastChannel("synapse:timer")
+    } catch {
+      channelRef.current = null
+    }
+    return () => {
+      try {
+        channelRef.current?.close()
+      } catch {}
+      channelRef.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const snapshot = {
+      mode,
+      secondsLeft,
+      isRunning,
+      focusMin: durations.focusMin,
+      breakMin: durations.breakMin,
+      at: Date.now(),
+    }
+    try {
+      window.localStorage.setItem("synapse:popout-timer", JSON.stringify(snapshot))
+    } catch {}
+    try {
+      channelRef.current?.postMessage(snapshot)
+    } catch {}
+  }, [mode, secondsLeft, isRunning, durations])
 
   const minutesFor = useCallback(
     (m: TimerMode) => (m === "focus" ? durations.focusMin : durations.breakMin),

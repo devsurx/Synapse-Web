@@ -20,10 +20,11 @@ interface NamePromptProps {
 }
 
 export function NamePrompt({ onSubmit }: NamePromptProps) {
-  const [value, setValue] = useState(loadName)
+  const [value, setValue] = useState("")
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
+    setValue(loadName())
     const t = setTimeout(() => setVisible(true), 120)
     return () => clearTimeout(t)
   }, [])

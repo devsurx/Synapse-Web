@@ -12,7 +12,7 @@ import { RankChip } from "./rank-chip"
 
 export function Header() {
   const { enabled, toggle, flash } = useAmbientRain()
-  const [focusMinutes, setFocusMinutes] = useState(() => readStats().focusMinutes)
+  const [focusMinutes, setFocusMinutes] = useState(0)
 
   useEffect(() => {
     const unsub = subscribeStats((s) => {

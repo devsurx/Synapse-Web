@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Header } from "./header"
 import { BottomNav, type ViewId } from "./bottom-nav"
 import { IntroCarousel } from "./intro-carousel"
@@ -9,12 +9,19 @@ import { ToolView } from "./tool-view"
 import { FocusTimer } from "./focus-timer"
 import { FocusVisual } from "./focus-visual"
 import { useFocusTimer } from "@/hooks/use-focus-timer"
+import { useTabVisible } from "@/hooks/use-tab-visible"
 import { getUserName, setUserName } from "@/lib/profile"
 
 export function SynapseApp() {
   const [view, setView] = useState<ViewId>("focus")
-  const [userName, setUserNameState] = useState<string | null>(() => getUserName())
+  const [userName, setUserNameState] = useState<string | null>(null)
   const timer = useFocusTimer()
+  // Pause all CSS animations while the tab runs in the background.
+  useTabVisible()
+
+  useEffect(() => {
+    setUserNameState(getUserName())
+  }, [])
 
   const handleName = (name: string) => {
     setUserName(name)

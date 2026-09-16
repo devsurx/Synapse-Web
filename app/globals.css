@@ -93,6 +93,54 @@
   }
 }
 
+/* Registered color tokens so the storm palette cross-fades instead of snapping.
+   Custom properties only transition once registered via @property. */
+@property --background { syntax: "<color>"; inherits: true; initial-value: oklch(0.18 0.014 158); }
+@property --foreground { syntax: "<color>"; inherits: true; initial-value: oklch(0.95 0.012 95); }
+@property --card { syntax: "<color>"; inherits: true; initial-value: oklch(0.215 0.016 158); }
+@property --card-foreground { syntax: "<color>"; inherits: true; initial-value: oklch(0.95 0.012 95); }
+@property --popover { syntax: "<color>"; inherits: true; initial-value: oklch(0.225 0.016 158); }
+@property --popover-foreground { syntax: "<color>"; inherits: true; initial-value: oklch(0.95 0.012 95); }
+@property --primary { syntax: "<color>"; inherits: true; initial-value: oklch(0.82 0.13 76); }
+@property --primary-foreground { syntax: "<color>"; inherits: true; initial-value: oklch(0.24 0.03 76); }
+@property --secondary { syntax: "<color>"; inherits: true; initial-value: oklch(0.27 0.015 158); }
+@property --secondary-foreground { syntax: "<color>"; inherits: true; initial-value: oklch(0.95 0.012 95); }
+@property --muted { syntax: "<color>"; inherits: true; initial-value: oklch(0.27 0.015 158); }
+@property --muted-foreground { syntax: "<color>"; inherits: true; initial-value: oklch(0.7 0.018 150); }
+@property --accent { syntax: "<color>"; inherits: true; initial-value: oklch(0.76 0.11 150); }
+@property --accent-foreground { syntax: "<color>"; inherits: true; initial-value: oklch(0.22 0.03 150); }
+@property --destructive { syntax: "<color>"; inherits: true; initial-value: oklch(0.62 0.2 25); }
+@property --border { syntax: "<color>"; inherits: true; initial-value: oklch(1 0 0 / 9%); }
+@property --input { syntax: "<color>"; inherits: true; initial-value: oklch(1 0 0 / 12%); }
+@property --ring { syntax: "<color>"; inherits: true; initial-value: oklch(0.82 0.13 76); }
+@property --sidebar { syntax: "<color>"; inherits: true; initial-value: oklch(0.215 0.016 158); }
+@property --sidebar-border { syntax: "<color>"; inherits: true; initial-value: oklch(1 0 0 / 9%); }
+
+html {
+  transition:
+    --background 2.4s ease, --foreground 2.4s ease,
+    --card 2.4s ease, --card-foreground 2.4s ease,
+    --popover 2.4s ease, --popover-foreground 2.4s ease,
+    --primary 2.4s ease, --primary-foreground 2.4s ease,
+    --secondary 2.4s ease, --secondary-foreground 2.4s ease,
+    --muted 2.4s ease, --muted-foreground 2.4s ease,
+    --accent 2.4s ease, --accent-foreground 2.4s ease,
+    --destructive 2.4s ease, --border 2.4s ease, --input 2.4s ease,
+    --ring 2.4s ease, --sidebar 2.4s ease, --sidebar-border 2.4s ease;
+}
+
+body {
+  /* Fallback so painted surfaces fade even where the token transition isn't picked up */
+  transition: background-color 2.4s ease, color 2.4s ease, border-color 2.4s ease;
+}
+
+/* Background tabs: freeze every CSS animation to cut CPU/GPU + RAM churn. */
+html[data-tab-hidden="true"] *,
+html[data-tab-hidden="true"] *::before,
+html[data-tab-hidden="true"] *::after {
+  animation-play-state: paused !important;
+}
+
 html.storm {
   /* near-black storm palette */
   --background: oklch(0.125 0.012 265);
@@ -138,24 +186,61 @@ html.storm {
 }
 
 @keyframes synapse-lightning {
-  0% {
-    opacity: 0;
+  0% { opacity: 0; }
+  8% { opacity: 0.85; }
+  16% { opacity: 0.1; }
+  26% { opacity: 0.7; }
+  40% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Realistic strike: a hard initial crack, a near-black gap, then 1–2 weaker
+   re-strikes that decay fast. Peaks stay well below a full white wash. */
+@keyframes synapse-bolt-flicker {
+  0% { opacity: 0; }
+  4% { opacity: 0.95; }
+  9% { opacity: 0.08; }
+  14% { opacity: 0.65; }
+  20% { opacity: 0.12; }
+  28% { opacity: 0.38; }
+  40% { opacity: 0.05; }
+  55% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Sky illumination swells a touch slower than the bolt and lingers briefly. */
+@keyframes synapse-lightning-glow {
+  0% { opacity: 0; }
+  6% { opacity: 0.9; }
+  12% { opacity: 0.25; }
+  19% { opacity: 0.6; }
+  30% { opacity: 0.28; }
+  48% { opacity: 0.1; }
+  70% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes synapse-breathe {
+  0%, 100% {
+    opacity: 0.55;
+    scale: 1;
   }
-  8% {
-    opacity: 0.85;
+  50% {
+    opacity: 0.9;
+    scale: 1.08;
   }
-  16% {
-    opacity: 0.1;
-  }
-  26% {
-    opacity: 0.7;
-  }
-  40% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 0;
-  }
+}
+
+.rain-layer {
+  background-image: repeating-linear-gradient(
+    12deg,
+    transparent 0 5px,
+    rgba(165, 200, 235, 0.28) 5px 6px,
+    transparent 6px 12px
+  );
+  background-size: 90px 124px;
+  animation: synapse-rainfall 0.9s linear infinite;
+  will-change: background-position;
 }
 
 @keyframes synapse-rainfall {

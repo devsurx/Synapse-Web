@@ -58,16 +58,16 @@ export function FocusVisual({ progress, isRunning, mode }: FocusVisualProps) {
         )}
       />
 
-      {/* faint foliage anchors in the corners */}
+      {/* faint foliage anchors tucked inside the rounded corner */}
       <Leaf
         aria-hidden
-        className="absolute -left-10 -top-10 size-44 rotate-[135deg] text-accent/10"
+        className="absolute left-1 top-1 size-36 rotate-[135deg] text-accent/10"
         strokeWidth={1}
         fill="currentColor"
       />
       <Leaf
         aria-hidden
-        className="absolute -bottom-12 -right-12 size-52 -rotate-45 text-primary/10"
+        className="absolute bottom-1 right-1 size-40 -rotate-45 text-primary/10"
         strokeWidth={1}
         fill="currentColor"
       />
