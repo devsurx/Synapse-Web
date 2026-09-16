@@ -1,65 +1,92 @@
-# Synapse — Focus & Grow
+<div align="center">
+
+<img src="./logo.png" width="96" height="96" alt="Synapse logo" />
+
+# Synapse
+
+**Focus & Grow**
 
 A calm focus companion. Run deep-work sessions, grow your streak, and study smarter with built-in learning tools.
 
-Built with [Next.js 16](https://nextjs.org) App Router, React 19, and Tailwind CSS 4. See the connecting thought in `components/synapse/` and the session logic in `hooks/`.
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js&logoColor=white)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![pnpm](https://img.shields.io/badge/pnpm-12-F69220?logo=pnpm&logoColor=white)](https://pnpm.io)
+[![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel&logoColor=white)](https://vercel.com)
+
+</div>
 
 ## Features
 
-- **Focus timer** — 25m deep-work / 5m break sessions (Pomodoro-style).
-- **Growth visual** — a plant rises, unfurls leaves, and blooms as your session progress grows, with an ambient breathing glow and drifting spores.
-- **Streak bar** — last-14-day activity at a glance.
-- **Ambient rain** — an optional rain toggle for calm background noise.
-- **Learning tools** — Feynman Mode, ELI5, Flashcards, Study Chat, Planner, and Squad (currently placeholders, marked *coming soon*).
+| | Tool | What it does |
+| --- | --- | --- |
+| ⏱ | **Focus Timer** | 25-minute deep-work and 5-minute break sessions with a Pomodoro-style cycle. |
+| 🌱 | **Growth Visual** | A plant rises, unfurls leaves, and blooms as your session progresses, set against an ambient breathing glow and drifting spores. |
+| 🔥 | **Streak Bar** | Last-14-day activity at a glance to keep the momentum going. |
+| 🌧 | **Ambient Rain** | An optional rain toggle for a calmer background. |
+| 🧠 | **Learning Tools** | Feynman Mode, ELI5, Flashcards, Study Chat, Planner, and Squad — a growing suite of study companions. |
 
-## Getting started
+> The learning tools are currently placeholders and marked *Coming soon*.
 
-Requirements: Node.js and [pnpm](https://pnpm.io) (version is pinned in `package.json` via `packageManager`).
+## Getting Started
+
+**Requirements:** Node.js `>= 20` and [pnpm](https://pnpm.io) (version pinned in `package.json`).
 
 ```bash
-# install dependencies
+# 1. Install dependencies
 pnpm install
 
-# start the dev server at http://localhost:3000
+# 2. Start the development server
 pnpm dev
-
-# create a production build
-pnpm build
-
-# run the production build
-pnpm start
 ```
 
-> Prefer npm? Vercel resolves the package manager from the `packageManager` field and the `pnpm-lock.yaml` lockfile. If you switch tools, commit the matching lockfile.
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-## Project structure
+### Available Scripts
+
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Starts the dev server with hot reload. |
+| `pnpm build` | Creates a production build. |
+| `pnpm start` | Serves the production build. |
+
+## Project Structure
 
 ```
-app/                  # App Router pages, root layout, global styles
-  layout.tsx          # metadata, favicon/logo, fonts, theme
-  page.tsx            # entry point -> SynapseApp
-components/
-  ui/                 # base UI primitives (button, etc.)
-  synapse/            # app-specific UI: timer, visual, streaks, nav, tools
-hooks/                # focus timer + ambient rain state
-lib/                  # shared helpers
-public/               # static assets (favicon, logo)
+.
+├── app/                  # App Router pages & root layout
+│   ├── layout.tsx        # metadata, favicon/logo, fonts, theme
+│   ├── page.tsx          # entry point → <SynapseApp />
+│   └── globals.css       # dark forest theme + animation keyframes
+├── components/
+│   ├── ui/               # base UI primitives
+│   └── synapse/          # timer, growth visual, streaks, navigation, tools
+├── hooks/                # focus-timer & ambient-rain state
+├── lib/                  # shared helpers
+└── public/               # static assets (favicon, logo)
 ```
 
-## Configuration notes
+## Tech Stack
 
-- `next.config.mjs` runs `images.unoptimized` and `typescript.ignoreBuildErrors`.
-- The dark "forest-charcoal" theme (with warm amber and sage green) is defined in `app/globals.css`.
-- Animations (`synapse-*`) are declared as keyframes in `app/globals.css`.
+| Layer | Technology |
+| --- | --- |
+| Framework | Next.js 16 (App Router) |
+| UI | React 19, Tailwind CSS 4, shadcn/ui |
+| Language | TypeScript |
+| Package manager | pnpm 12 |
+| Hosting | Vercel |
 
-## Deploying
+## Deployment
 
-The project is set up for [Vercel](https://vercel.com). Deploys use a frozen `pnpm install`, so keep `pnpm-lock.yaml` in sync with `package.json` after changing dependencies:
+This project deploys on [Vercel](https://vercel.com). Vercel installs dependencies with a frozen `pnpm install`, so keep `pnpm-lock.yaml` in sync after changing dependencies:
 
 ```bash
 pnpm install --lockfile-only
 ```
 
-## License
+---
 
-Private project — all rights reserved.
+<p align="center">
+  <sub>Built for calm, focused work. All rights reserved.</sub>
+</p>

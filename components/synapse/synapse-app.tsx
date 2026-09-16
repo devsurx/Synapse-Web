@@ -6,6 +6,7 @@ import { BottomNav, type ViewId } from "./bottom-nav"
 import { FocusTimer } from "./focus-timer"
 import { FocusVisual } from "./focus-visual"
 import { Header } from "./header"
+import { SplashScreen } from "./splash-screen"
 import { StreakBar } from "./streak-bar"
 import { ToolView } from "./tool-view"
 
@@ -15,6 +16,7 @@ export function SynapseApp() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8">
+      <SplashScreen />
       <Header />
 
       <div className="grid flex-1 gap-4 lg:grid-cols-2">
