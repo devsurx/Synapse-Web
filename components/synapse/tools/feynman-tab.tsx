@@ -1,6 +1,6 @@
 "use client"
 
-import { History, Loader2, Sparkles, X } from "lucide-react"
+import { History, Loader2, Mic, Sparkles, X } from "lucide-react"
 import { useState } from "react"
 import { useAiStream } from "@/hooks/use-ai-stream"
 import { cn } from "@/lib/utils"
@@ -11,6 +11,8 @@ interface HistoryEntry {
   critique: string
   at: number
 }
+
+const SUGGESTED_CONCEPTS = ["Entropy", "Photosynthesis", "Bayes' theorem", "Recursion", "Hellfire missiles"]
 
 const HISTORY_KEY = "synapse:feynman-history"
 
@@ -26,6 +28,30 @@ function loadHistory(): HistoryEntry[] {
 export function FeynmanTab() {
   const [concept, setConcept] = useState("")
   const [explanation, setExplanation] = useState("")
+  const [listening, setListening] = useState(false)
+  const voiceSupported =
+    typeof window !== "undefined" &&
+    Boolean((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition)
+
+  const startVoice = () => {
+    if (!voiceSupported) return
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    const recognition = new SR()
+    recognition.lang = "en-US"
+    recognition.maxAlternatives = 1
+    recognition.onresult = (event: any) => {
+      const transcript = (event.results[0][0].transcript as string).trim()
+      setConcept((prev) => (prev ? `${prev} ${transcript}` : transcript))
+    }
+    recognition.onend = () => setListening(false)
+    recognition.onerror = () => setListening(false)
+    setListening(true)
+    try {
+      recognition.start()
+    } catch {
+      setListening(false)
+    }
+  }
   const [history, setHistory] = useState<HistoryEntry[]>(loadHistory)
   const [active, setActive] = useState<HistoryEntry | null>(null)
   const { text, isStreaming, error, send, reset } = useAiStream({
@@ -72,10 +98,34 @@ export function FeynmanTab() {
         <div className="flex flex-col gap-3">
           <input
             value={concept}
-            onChange={(e) => setConcept(e.target.value)}
-            placeholder="Concept you're learning, e.g. Entropy"
+            onChange={(e) => setConcept(e.target.value)}placeholder="Concept you're learning, e.g. Entropy"
             className="rounded-xl border border-border bg-secondary/40 px-4 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent/50"
           />
+                      <div className="mb-2 mt-1 flex flex-wrap items-center gap-1.5">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Pick</span>
+            {SUGGESTED_CONCEPTS.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setConcept(s)}
+                className="rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-accent/60 hover:text-foreground"
+              >
+                {s}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={startVoice}
+              disabled={!voiceSupported}
+              aria-label={listening ? "Listening for your concept" : "Speak your concept"}
+              title="Voice-to-text"
+              className={"ml-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/60 px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:border-accent/60 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"}
+            >
+              <Mic size={12} className={listening ? "animate-pulse text-accent" : ""} />
+              {listening ? "Listening…" : "Voice"}
+            </button>
+          </div>
+
           <textarea
             value={explanation}
             onChange={(e) => setExplanation(e.target.value)}

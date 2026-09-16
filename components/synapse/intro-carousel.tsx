@@ -53,7 +53,7 @@ const slides: Slide[] = [
   },
 ]
 
-export function IntroCarousel() {
+export function IntroCarousel({ userName }: { userName: string }) {
   const [seen, setSeen] = useState(true)
   const [current, setCurrent] = useState(0)
   const [visible, setVisible] = useState(false)
@@ -62,7 +62,8 @@ export function IntroCarousel() {
 
   useEffect(() => {
     if (typeof window === "undefined") return
-    setSeen(localStorage.getItem(INTRO_KEY) === "1")
+    // Always show the intro on this device — don't gate on the seen flag.
+    setSeen(false)
     const t = setTimeout(() => setVisible(true), 80)
     return () => clearTimeout(t)
   }, [])
@@ -99,7 +100,7 @@ export function IntroCarousel() {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-40 flex flex-col items-center justify-center bg-background transition-opacity duration-400",
+        "fixed inset-0 z-40 flex flex-col items-center justify-center overflow-y-auto bg-background px-6 py-8 transition-opacity duration-400",
         visible ? "opacity-100" : "pointer-events-none opacity-0",
       )}
       onTouchStart={onTouchStart}
@@ -114,6 +115,9 @@ export function IntroCarousel() {
       </div>
 
       <div className="relative z-10 w-full max-w-md px-6">
+        <p className="mb-8 text-center font-serif text-xl text-accent">
+          Welcome, {userName}
+        </p>
         <div className="overflow-hidden">
           <div
             ref={trackRef}
@@ -128,9 +132,9 @@ export function IntroCarousel() {
                 <h2 className="font-serif text-2xl text-foreground">{title}</h2>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
                 {features && (
-                  <div className="mt-6 w-full max-w-sm space-y-2 text-left">
+                  <div className="mt-5 w-full max-w-sm space-y-1.5 text-left">
                     {features.map((f) => (
-                      <div key={f.label} className="rounded-xl border border-border bg-card/50 px-4 py-2.5">
+                      <div key={f.label} className="rounded-xl border border-border bg-card/50 px-4 py-2">
                         <span className={cn("text-sm font-semibold", accent)}>{f.label}</span>
                         <p className="text-xs leading-relaxed text-muted-foreground">{f.detail}</p>
                       </div>
@@ -142,7 +146,7 @@ export function IntroCarousel() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center gap-5">
+        <div className="mt-8 flex flex-col items-center gap-4">
           <div className="flex items-center gap-2">
             {slides.map((_, i) => (
               <button
