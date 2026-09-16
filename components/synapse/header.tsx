@@ -2,11 +2,27 @@
 
 import Image from "next/image"
 import { CloudRain } from "lucide-react"
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
+import { getRank } from "@/lib/ranks"
+import { readStats, subscribeStats } from "@/lib/stats"
 import { useAmbientRain } from "@/hooks/use-ambient-rain"
+import { StormLayer } from "./storm-layer"
+import { RankChip } from "./rank-chip"
 
 export function Header() {
-  const { enabled, toggle } = useAmbientRain()
+  const { enabled, toggle, flash } = useAmbientRain()
+  const [focusMinutes, setFocusMinutes] = useState(() => readStats().focusMinutes)
+
+  useEffect(() => {
+    const unsub = subscribeStats((s) => {
+      setFocusMinutes(s.focusMinutes)
+    })
+    return unsub
+  }, [])
+
+  const { rank, next, progress } = getRank(focusMinutes)
+
   return (
     <header className="flex items-center justify-between gap-4">
       <div className="flex min-w-0 items-center gap-3">
@@ -18,11 +34,18 @@ export function Header() {
           className="size-11 rounded-full object-cover"
           priority
         />
-        <div className="flex items-baseline gap-3">
-          <span className="font-serif text-3xl leading-none text-foreground">Synapse</span>
-          <span className="hidden text-sm text-accent sm:inline">Synergic Stem · Lv 7</span>
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="truncate font-serif text-3xl leading-none text-foreground">Synapse</span>
+          <RankChip
+            rank={rank}
+            next={next}
+            progress={progress}
+            focusMinutes={focusMinutes}
+            compact
+          />
         </div>
       </div>
+
       <button
         type="button"
         onClick={toggle}
@@ -30,13 +53,15 @@ export function Header() {
         className={cn(
           "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors",
           enabled
-            ? "border-primary/40 bg-primary/15 text-primary"
+            ? "border-sky-400/40 bg-sky-400/10 text-sky-300"
             : "border-border bg-card/60 text-muted-foreground hover:text-foreground",
         )}
       >
-        <CloudRain className="size-4" strokeWidth={1.75} />
-        {enabled ? "Rain on" : "Rain off"}
+        <CloudRain className={cn("size-4", enabled && "animate-pulse")} strokeWidth={1.75} />
+        {enabled ? "Storm on" : "Storm off"}
       </button>
+
+      <StormLayer enabled={enabled} flash={flash} />
     </header>
   )
 }

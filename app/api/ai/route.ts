@@ -57,7 +57,8 @@ export async function POST(request: Request) {
     return Response.json({ error: "Could not reach OpenRouter. Try again." }, { status: 502 })
   }
 
-  if (!upstream.ok || !upstream.body) {
+  const upstreamBody = upstream.body
+  if (!upstream.ok || !upstreamBody) {
     const detail = await upstream.text().catch(() => "")
     return Response.json(
       {
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
 
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      const reader = upstream.body.getReader()
+      const reader = upstreamBody.getReader()
       const decoder = new TextDecoder()
       let buffer = ""
       try {

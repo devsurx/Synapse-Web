@@ -41,6 +41,7 @@ export function useAiStream({ onComplete }: UseAiStreamOptions = {}) {
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ""
+      let full = ""
 
       while (true) {
         const { done, value } = await reader.read()
@@ -56,7 +57,8 @@ export function useAiStream({ onComplete }: UseAiStreamOptions = {}) {
             try {
               const json = JSON.parse(data)
               if (typeof json.text === "string") {
-                setText((prev) => prev + json.text)
+                full += json.text
+                setText(full)
               }
               if (json.error) {
                 setError(json.error)
@@ -66,10 +68,8 @@ export function useAiStream({ onComplete }: UseAiStreamOptions = {}) {
         }
       }
 
-      setText((prev) => {
-        onCompleteRef.current?.(prev)
-        return prev
-      })
+      setText(full)
+      onCompleteRef.current?.(full)
       setState("idle")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.")

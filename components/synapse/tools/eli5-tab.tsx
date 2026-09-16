@@ -4,6 +4,7 @@ import { Loader2, Sprout } from "lucide-react"
 import { useState } from "react"
 import { useAiStream } from "@/hooks/use-ai-stream"
 import { cn } from "@/lib/utils"
+import { Markdown } from "../markdown"
 
 export function Eli5Tab() {
   const [concept, setConcept] = useState("")
@@ -67,8 +68,8 @@ export function Eli5Tab() {
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {showStream && (
-        <div className="whitespace-pre-wrap rounded-xl border border-accent/25 bg-card/60 p-4 text-sm leading-relaxed text-foreground/90 animate-in fade-in duration-300">
-          {text}
+        <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-accent/25 bg-card/60 p-4 animate-in fade-in duration-300">
+          <Markdown>{text}</Markdown>
           {isStreaming && <span className="ml-0.5 inline-block animate-pulse">▍</span>}
         </div>
       )}

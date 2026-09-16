@@ -1,20 +1,47 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import { recordSession, subscribeStats } from "@/lib/stats"
 
 export type TimerMode = "focus" | "break"
 
-export const DURATIONS: Record<TimerMode, number> = {
-  focus: 25 * 60,
-  break: 5 * 60,
+export const DEFAULT_FOCUS_MIN = 25
+export const DEFAULT_BREAK_MIN = 5
+
+const DURATION_KEY = "synapse:timer-durations"
+
+function clamp(n: number, lo: number, hi: number): number {
+  if (typeof n !== "number" || Number.isNaN(n)) return lo
+  return Math.min(Math.max(Math.round(n), lo), hi)
+}
+
+function loadDurations(): { focusMin: number; breakMin: number } {
+  if (typeof window === "undefined") return { focusMin: DEFAULT_FOCUS_MIN, breakMin: DEFAULT_BREAK_MIN }
+  try {
+    const raw = window.localStorage.getItem(DURATION_KEY)
+    if (!raw) return { focusMin: DEFAULT_FOCUS_MIN, breakMin: DEFAULT_BREAK_MIN }
+    const parsed = JSON.parse(raw)
+    return {
+      focusMin: clamp(parsed.focusMin, 1, 180),
+      breakMin: clamp(parsed.breakMin, 1, 60),
+    }
+  } catch {
+    return { focusMin: DEFAULT_FOCUS_MIN, breakMin: DEFAULT_BREAK_MIN }
+  }
+}
+
+function todayKey(): string {
+  return new Date().toISOString().slice(0, 10)
 }
 
 export function useFocusTimer() {
+  const [durations, setDurations] = useState(loadDurations)
   const [mode, setModeState] = useState<TimerMode>("focus")
-  const [secondsLeft, setSecondsLeft] = useState(DURATIONS.focus)
+  const [secondsLeft, setSecondsLeft] = useState(() => durations.focusMin * 60)
   const [isRunning, setIsRunning] = useState(false)
-  const [sessions, setSessions] = useState(0)
+  const [todaySessions, setTodaySessions] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const completionHandledRef = useRef(false)
 
   const clear = useCallback(() => {
     if (intervalRef.current) {
@@ -24,56 +51,104 @@ export function useFocusTimer() {
   }, [])
 
   useEffect(() => {
+    const unsub = subscribeStats((stats) => {
+      setTodaySessions(stats.days[todayKey()]?.sessions ?? 0)
+    })
+    return unsub
+  }, [])
+
+  useEffect(() => {
     if (!isRunning) return
     intervalRef.current = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          return 0
-        }
-        return prev - 1
-      })
+      setSecondsLeft((prev) => (prev <= 1 ? 0 : prev - 1))
     }, 1000)
     return clear
   }, [isRunning, clear])
 
-  // Handle completion as a side effect of reaching zero.
   useEffect(() => {
     if (secondsLeft !== 0 || !isRunning) return
+    if (completionHandledRef.current) return
+    completionHandledRef.current = true
     setIsRunning(false)
-    setMode((current) => {
-      const next: TimerMode = current === "focus" ? "break" : "focus"
-      if (current === "focus") setSessions((s) => s + 1)
-      return next
-    })
+    if (mode === "focus") {
+      recordSession(durations.focusMin)
+    }
+    setModeState((current) => (current === "focus" ? "break" : "focus"))
+    setSecondsLeft(durations.breakMin * 60)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secondsLeft, isRunning])
 
-  const setMode = useCallback((next: TimerMode) => {
-    setModeState(next)
-    setIsRunning(false)
-    setSecondsLeft(DURATIONS[next])
-  }, [])
+  useEffect(() => {
+    if (secondsLeft === 0 && !isRunning && mode === "focus") {
+      completionHandledRef.current = false
+    }
+  }, [mode, isRunning, secondsLeft])
+
+  const minutesFor = useCallback(
+    (m: TimerMode) => (m === "focus" ? durations.focusMin : durations.breakMin),
+    [durations],
+  )
+
+  const total = minutesFor(mode) * 60
+  const progress = secondsLeft === 0 && !isRunning ? 0 : 1 - secondsLeft / total
+
+  const setMode = useCallback(
+    (next: TimerMode) => {
+      setIsRunning(false)
+      setModeState(next)
+      setSecondsLeft(minutesFor(next) * 60)
+      completionHandledRef.current = false
+    },
+    [minutesFor],
+  )
 
   const toggle = useCallback(() => {
-    setSecondsLeft((prev) => (prev === 0 ? DURATIONS[mode] : prev))
-    setIsRunning((r) => !r)
-  }, [mode])
+    setIsRunning((r) => {
+      if (!r && secondsLeft === 0) {
+        setSecondsLeft(minutesFor(mode) * 60)
+        completionHandledRef.current = false
+      }
+      return !r
+    })
+  }, [secondsLeft, mode, minutesFor])
 
   const reset = useCallback(() => {
     setIsRunning(false)
-    setSecondsLeft(DURATIONS[mode])
-  }, [mode])
+    setSecondsLeft(minutesFor(mode) * 60)
+    completionHandledRef.current = false
+  }, [mode, minutesFor])
 
-  const total = DURATIONS[mode]
-  const progress = 1 - secondsLeft / total
+  const updateDuration = useCallback(
+    (which: TimerMode, minutes: number) => {
+      const safe = clamp(minutes, 1, which === "focus" ? 180 : 60)
+      setDurations((prev) => {
+        const next = { ...prev, [which === "focus" ? "focusMin" : "breakMin"]: safe }
+        try {
+          window.localStorage.setItem(DURATION_KEY, JSON.stringify(next))
+        } catch {}
+        return next
+      })
+      setIsRunning(false)
+      if (mode === which) {
+        setSecondsLeft(safe * 60)
+        completionHandledRef.current = false
+      }
+    },
+    [mode],
+  )
 
   return {
     mode,
     setMode,
     secondsLeft,
     isRunning,
-    sessions,
+    todaySessions,
     progress,
+    durations: {
+      focus: durations.focusMin,
+      break: durations.breakMin,
+    },
+    updateDuration,
     toggle,
     reset,
   }

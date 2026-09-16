@@ -1,7 +1,9 @@
-import { cn } from "@/lib/utils"
+"use client"
 
-// mocked last-14-day activity: number of focus sessions per day
-const DAYS = [2, 3, 1, 4, 0, 2, 5, 3, 4, 2, 6, 3, 4, 2]
+import { Flame } from "lucide-react"
+import { useEffect, useState } from "react"
+import { cn } from "@/lib/utils"
+import { getDayCounts, getStreak } from "@/lib/stats"
 
 function level(count: number) {
   if (count === 0) return "bg-secondary"
@@ -11,19 +13,45 @@ function level(count: number) {
 }
 
 export function StreakBar() {
-  const total = DAYS.reduce((a, b) => a + b, 0)
+  const [days, setDays] = useState(() => getDayCounts(14))
+  const [streak, setStreak] = useState(0)
+
+  useEffect(() => {
+    setDays(getDayCounts(14))
+    setStreak(getStreak())
+    const onTick = () => {
+      setDays(getDayCounts(14))
+      setStreak(getStreak())
+    }
+    window.addEventListener("focus", onTick)
+    const interval = window.setInterval(onTick, 60_000)
+    return () => {
+      window.removeEventListener("focus", onTick)
+      window.clearInterval(interval)
+    }
+  }, [])
+
+  const total = days.reduce((a, d) => a + d.sessions, 0)
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-2xl border border-border bg-card/60 px-5 py-4">
-      <div>
+      <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-foreground">Last 14 days</p>
         <p className="text-xs text-muted-foreground">{total} sessions completed</p>
       </div>
+      {streak > 0 && (
+        <div className="flex items-center gap-1.5 text-sm text-accent">
+          <Flame className="size-4 fill-current" />
+          {streak}-day streak
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-1.5">
-        {DAYS.map((count, i) => (
+        {days.map((d, i) => (
           <span
-            key={i}
-            title={`${count} sessions`}
-            className={cn("size-3 rounded-full transition-colors", level(count))}
+            key={d.date}
+            title={`${d.date}: ${d.sessions} sessions`}
+            className={cn("size-3 rounded-full transition-colors", level(d.sessions))}
+            style={i === days.length - 1 && d.sessions === 0 ? { boxShadow: "0 0 0 1.5px var(--border)" } : undefined}
           />
         ))}
       </div>

@@ -1,25 +1,36 @@
 "use client"
 
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
-export function SplashScreen() {
+interface SplashScreenProps {
+  onDone?: () => void
+}
+
+export function SplashScreen({ onDone }: SplashScreenProps) {
   const [phase, setPhase] = useState<"in" | "out" | "done">("in")
+  const onDoneRef = useCallback(() => onDone?.(), [onDone])
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase("out"), 1600)
-    const t2 = setTimeout(() => setPhase("done"), 2200)
+    const t2 = setTimeout(() => {
+      setPhase("done")
+      onDoneRef()
+    }, 2200)
     return () => {
       clearTimeout(t1)
       clearTimeout(t2)
     }
-  }, [])
+  }, [onDoneRef])
 
   if (phase === "done") return null
 
   return (
     <div
-      onClick={() => setPhase("out")}
+      onClick={() => {
+        setPhase("out")
+        setTimeout(() => onDoneRef(), 600)
+      }}
       className="fixed inset-0 z-50 flex cursor-pointer flex-col items-center justify-center bg-background transition-opacity duration-600"
       style={{ opacity: phase === "out" ? 0 : 1, pointerEvents: phase === "out" ? "none" : undefined }}
     >

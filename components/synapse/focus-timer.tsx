@@ -3,13 +3,16 @@
 import { Pause, Play, RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { TimerMode } from "@/hooks/use-focus-timer"
+import { TimerSettings } from "./timer-settings"
 
 interface FocusTimerProps {
   mode: TimerMode
   setMode: (mode: TimerMode) => void
   secondsLeft: number
   isRunning: boolean
-  sessions: number
+  todaySessions: number
+  durations: { focus: number; break: number }
+  updateDuration: (which: TimerMode, minutes: number) => void
   toggle: () => void
   reset: () => void
 }
@@ -27,7 +30,9 @@ export function FocusTimer({
   setMode,
   secondsLeft,
   isRunning,
-  sessions,
+  todaySessions,
+  durations,
+  updateDuration,
   toggle,
   reset,
 }: FocusTimerProps) {
@@ -47,7 +52,7 @@ export function FocusTimer({
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            {m}
+            {m} · {durations[m]}m
           </button>
         ))}
       </div>
@@ -61,7 +66,7 @@ export function FocusTimer({
           {format(secondsLeft)}
         </p>
         <p className="mt-3 text-sm text-muted-foreground">
-          {sessions} focus {sessions === 1 ? "session" : "sessions"} today
+          {todaySessions} focus {todaySessions === 1 ? "session" : "sessions"} today
         </p>
       </div>
 
@@ -86,10 +91,11 @@ export function FocusTimer({
           type="button"
           onClick={reset}
           aria-label="Reset timer"
-          className="inline-flex size-12 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          className="inline-flex size-11 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
         >
           <RotateCcw className="size-5" />
         </button>
+        <TimerSettings focusMin={durations.focus} breakMin={durations.break} onChange={updateDuration} />
       </div>
     </div>
   )

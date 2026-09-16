@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import { useAiStream } from "@/hooks/use-ai-stream"
 import type { ChatMessage } from "@/lib/openrouter"
 import { cn } from "@/lib/utils"
+import { Markdown } from "../markdown"
 
 const CHAT_KEY = "synapse:chat-history"
 
@@ -25,7 +26,7 @@ export function ChatTab() {
   const { text, isStreaming, error, send } = useAiStream({
     onComplete: (reply) => {
       setMessages((prev) => {
-        const next = [...prev, { role: "assistant", content: reply }]
+        const next = [...prev, { role: "assistant" as const, content: reply }]
         try {
           window.localStorage.setItem(CHAT_KEY, JSON.stringify(next))
         } catch {}
@@ -47,7 +48,7 @@ export function ChatTab() {
     setMessages(history)
     setDraft("")
     try {
-      window.localStorage.setItem(CHAT_KEY, JSON.stringify(history.slice(0, -1)))
+      window.localStorage.setItem(CHAT_KEY, JSON.stringify(history))
     } catch {}
     send({ feature: "chat", messages: history })
   }
@@ -94,19 +95,19 @@ export function ChatTab() {
           <div
             key={i}
             className={cn(
-              "max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed animate-in fade-in duration-300",
+              "max-w-[85%] rounded-2xl px-4 py-2.5 animate-in fade-in duration-300",
               message.role === "user"
-                ? "self-end bg-primary text-primary-foreground"
-                : "self-start border border-border bg-secondary/60 text-foreground/90",
+                ? "self-end bg-primary text-primary-foreground text-sm leading-relaxed whitespace-pre-wrap"
+                : "self-start border border-border bg-secondary/60",
             )}
           >
-            {message.content}
+            {message.role === "user" ? message.content : <Markdown>{message.content}</Markdown>}
           </div>
         ))}
 
         {isStreaming && text && (
-          <div className="max-w-[85%] self-start whitespace-pre-wrap rounded-2xl border border-border bg-secondary/60 px-4 py-2.5 text-sm leading-relaxed text-foreground/90 animate-in fade-in duration-300">
-            {text}
+          <div className="max-w-[85%] self-start rounded-2xl border border-border bg-secondary/60 px-4 py-2.5 animate-in fade-in duration-300">
+            <Markdown>{text}</Markdown>
             <span className="ml-0.5 inline-block animate-pulse">▍</span>
           </div>
         )}
