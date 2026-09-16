@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Synapse — Focus & Grow
 
-## Getting Started
+A calm focus companion. Run deep-work sessions, grow your streak, and study smarter with built-in learning tools.
 
-First, run the development server:
+Built with [Next.js 16](https://nextjs.org) App Router, React 19, and Tailwind CSS 4. See the connecting thought in `components/synapse/` and the session logic in `hooks/`.
+
+## Features
+
+- **Focus timer** — 25m deep-work / 5m break sessions (Pomodoro-style).
+- **Growth visual** — a plant rises, unfurls leaves, and blooms as your session progress grows, with an ambient breathing glow and drifting spores.
+- **Streak bar** — last-14-day activity at a glance.
+- **Ambient rain** — an optional rain toggle for calm background noise.
+- **Learning tools** — Feynman Mode, ELI5, Flashcards, Study Chat, Planner, and Squad (currently placeholders, marked *coming soon*).
+
+## Getting started
+
+Requirements: Node.js and [pnpm](https://pnpm.io) (version is pinned in `package.json` via `packageManager`).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# install dependencies
+pnpm install
+
+# start the dev server at http://localhost:3000
 pnpm dev
-# or
-bun dev
+
+# create a production build
+pnpm build
+
+# run the production build
+pnpm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> Prefer npm? Vercel resolves the package manager from the `packageManager` field and the `pnpm-lock.yaml` lockfile. If you switch tools, commit the matching lockfile.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/                  # App Router pages, root layout, global styles
+  layout.tsx          # metadata, favicon/logo, fonts, theme
+  page.tsx            # entry point -> SynapseApp
+components/
+  ui/                 # base UI primitives (button, etc.)
+  synapse/            # app-specific UI: timer, visual, streaks, nav, tools
+hooks/                # focus timer + ambient rain state
+lib/                  # shared helpers
+public/               # static assets (favicon, logo)
+```
 
-## Learn More
+## Configuration notes
 
-To learn more about Next.js, take a look at the following resources:
+- `next.config.mjs` runs `images.unoptimized` and `typescript.ignoreBuildErrors`.
+- The dark "forest-charcoal" theme (with warm amber and sage green) is defined in `app/globals.css`.
+- Animations (`synapse-*`) are declared as keyframes in `app/globals.css`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploying
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The project is set up for [Vercel](https://vercel.com). Deploys use a frozen `pnpm install`, so keep `pnpm-lock.yaml` in sync with `package.json` after changing dependencies:
 
-## Deploy on Vercel
+```bash
+pnpm install --lockfile-only
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Private project — all rights reserved.
