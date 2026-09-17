@@ -234,8 +234,11 @@ export function StoryShareButton() {
         pixelRatio: 1,
         width: CARD_W,
         height: CARD_H,
-        // Belt-and-braces: the export node must render at full size with
-        // no preview scaling so IG gets an exact 1080x1920 full-bleed image.
+        canvasWidth: CARD_W,
+        canvasHeight: CARD_H,
+        // The export node lives off-screen with no transforms anywhere in
+        // its ancestry; this is a final guard so IG gets an exact,
+        // full-bleed 1080x1920 image.
         style: { transform: "none", margin: "0" },
       })
       const blob = await (await fetch(dataUrl)).blob()
@@ -269,8 +272,8 @@ export function StoryShareButton() {
       {open && snap && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-black/70 p-4 backdrop-blur-sm">
           {/* scaled preview of the full-size export node.
-              The transform lives on a wrapper OUTSIDE the export node so the
-              PNG renders at the full 1080x1920 with no scaling. */}
+              Preview-only scaling lives here — the actual export is captured
+              from the hidden off-screen tree below. */}
           <div
             className="overflow-hidden rounded-2xl shadow-2xl"
             style={{ width: CARD_W * PREVIEW_SCALE, height: CARD_H * PREVIEW_SCALE }}
@@ -283,7 +286,7 @@ export function StoryShareButton() {
                 transformOrigin: "top left",
               }}
             >
-              <div ref={cardRef} style={{ width: CARD_W, height: CARD_H }}>
+              <div style={{ width: CARD_W, height: CARD_H }}>
                 <StoryCard snap={snap} theme={theme} />
               </div>
             </div>
@@ -338,6 +341,24 @@ export function StoryShareButton() {
             >
               <X className="size-5" />
             </button>
+          </div>
+          {/* Hidden full-size export tree. It renders far off-screen with no
+              transforms, scaling, or clipping anywhere in its ancestry, so
+              the captured PNG is always an exact 1080x1920 full-bleed image. */}
+          <div
+            aria-hidden
+            style={{
+              position: "fixed",
+              left: "-12000px",
+              top: "0px",
+              width: CARD_W,
+              height: CARD_H,
+              pointerEvents: "none",
+            }}
+          >
+            <div ref={cardRef} style={{ width: CARD_W, height: CARD_H }}>
+              <StoryCard snap={snap} theme={theme} />
+            </div>
           </div>
         </div>
       )}
