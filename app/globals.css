@@ -93,6 +93,16 @@
   }
 }
 
+/* Hide scrollbars on scrollable chrome (e.g. the bottom nav on phones)
+   while keeping swipe-scroll working. */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Registered color tokens so the storm palette cross-fades instead of snapping.
    Custom properties only transition once registered via @property. */
 @property --background { syntax: "<color>"; inherits: true; initial-value: oklch(0.18 0.014 158); }
