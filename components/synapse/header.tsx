@@ -6,12 +6,19 @@ import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { getRank } from "@/lib/ranks"
 import { readStats, subscribeStats } from "@/lib/stats"
-import { useAmbientRain } from "@/hooks/use-ambient-rain"
 import { StormLayer } from "./storm-layer"
 import { RankChip } from "./rank-chip"
 
-export function Header() {
-  const { enabled, toggle, flash } = useAmbientRain()
+interface HeaderProps {
+  stormEnabled: boolean
+  onStormToggle: () => void
+  stormFlash: number
+}
+
+export function Header({ stormEnabled, onStormToggle, stormFlash }: HeaderProps) {
+  const enabled = stormEnabled
+  const toggle = onStormToggle
+  const flash = stormFlash
   const [focusMinutes, setFocusMinutes] = useState(0)
 
   useEffect(() => {

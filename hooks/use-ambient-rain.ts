@@ -184,6 +184,18 @@ export function useAmbientRain() {
     })
   }, [start, stop])
 
+  const setStorm = useCallback(
+    (next: boolean) => {
+      setEnabled((prev) => {
+        if (prev === next) return prev
+        if (next) start()
+        else stop()
+        return next
+      })
+    },
+    [start, stop],
+  )
+
   useEffect(() => {
     const root = document.documentElement
     if (enabled) {
@@ -212,5 +224,5 @@ export function useAmbientRain() {
     }
   }, [stop])
 
-  return { enabled, toggle, flash }
+  return { enabled, toggle, setStorm, flash }
 }

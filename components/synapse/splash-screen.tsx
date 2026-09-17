@@ -188,7 +188,7 @@ export function WelcomeScreen({ userName, onContinue }: WelcomeScreenProps) {
           <ArrowRight className="size-4" />
         </button>
         <p className="mt-4 text-xs text-muted-foreground/60 animate-in fade-in duration-500 delay-300">
-          4 short cards · skip anytime
+          5 short cards · skip anytime
         </p>
       </div>
     </div>

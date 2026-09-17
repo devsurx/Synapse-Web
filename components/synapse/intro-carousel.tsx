@@ -1,6 +1,6 @@
 "use client"
 
-import { Brain, Leaf, Share2, Timer } from "lucide-react"
+import { Brain, CloudRain, Leaf, Share2, Sun, Timer } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 
@@ -13,6 +13,8 @@ interface Slide {
   title: string
   body: string
   features?: { label: string; detail: string }[]
+  /** renders the storm on/off selector instead of the features list */
+  stormChoice?: boolean
 }
 
 const slides: Slide[] = [
@@ -50,9 +52,27 @@ const slides: Slide[] = [
     title: "Share your story",
     body: "Export a minimal card of your own focus — hours, streak, and rank — ready to post anywhere.",
   },
+  {
+    Icon: CloudRain,
+    accent: "text-sky-300",
+    bg: "bg-sky-400/15",
+    title: "Set the mood",
+    body: "Storm mode brings drifting clouds, rain, and soft thunder. Or keep things calm and clear.",
+    stormChoice: true,
+  },
 ]
 
-export function IntroCarousel({ userName, onDone }: { userName: string; onDone?: () => void }) {
+export function IntroCarousel({
+  userName,
+  onDone,
+  stormEnabled,
+  onStormChange,
+}: {
+  userName: string
+  onDone?: () => void
+  stormEnabled: boolean
+  onStormChange: (on: boolean) => void
+}) {
   const [seen, setSeen] = useState(true)
   const [current, setCurrent] = useState(0)
   const [visible, setVisible] = useState(false)
@@ -127,7 +147,7 @@ export function IntroCarousel({ userName, onDone }: { userName: string; onDone?:
             className="flex h-full transition-transform duration-500 ease-out will-change-transform"
             style={{ transform: `translateX(-${current * 100}%)` }}
           >
-            {slides.map(({ Icon, accent, bg, title, body, features }, i) => (
+            {slides.map(({ Icon, accent, bg, title, body, features, stormChoice }, i) => (
               <div key={i} className="flex h-full w-full shrink-0 flex-col items-center justify-center overflow-y-auto px-4 text-center">
                 <div className={cn("mb-8 flex size-20 items-center justify-center rounded-2xl shadow-lg shadow-black/5 ring-1 ring-border", bg)}>
                   <Icon className={cn("size-9", accent)} strokeWidth={1.5} />
@@ -146,6 +166,35 @@ export function IntroCarousel({ userName, onDone }: { userName: string; onDone?:
                       </li>
                     ))}
                   </ul>
+                )}
+                {stormChoice && (
+                  <div className="mt-6 grid w-full max-w-xs grid-cols-2 gap-2" role="group" aria-label="Storm mode">
+                    {(
+                      [
+                        { on: true, label: "Storm on", Icon: CloudRain },
+                        { on: false, label: "Calm", Icon: Sun },
+                      ] as const
+                    ).map(({ on, label, Icon: OptIcon }) => {
+                      const selected = stormEnabled === on
+                      return (
+                        <button
+                          key={label}
+                          type="button"
+                          aria-pressed={selected}
+                          onClick={() => onStormChange(on)}
+                          className={cn(
+                            "flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-medium transition-all",
+                            selected
+                              ? "border-accent/60 bg-accent/10 text-foreground shadow-lg shadow-black/10"
+                              : "border-border text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground",
+                          )}
+                        >
+                          <OptIcon className="size-4" strokeWidth={1.75} />
+                          {label}
+                        </button>
+                      )
+                    })}
+                  </div>
                 )}
               </div>
             ))}

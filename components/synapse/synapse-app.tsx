@@ -13,6 +13,7 @@ import { StreakBar } from "./streak-bar"
 import { StoryShareButton } from "./story-export"
 import { useFocusTimer } from "@/hooks/use-focus-timer"
 import { useTabVisible } from "@/hooks/use-tab-visible"
+import { useAmbientRain } from "@/hooks/use-ambient-rain"
 import { getUserName, setUserName } from "@/lib/profile"
 import { cn } from "@/lib/utils"
 
@@ -48,6 +49,7 @@ export function SynapseApp() {
   const [userName, setUserNameState] = useState<string | null>(null)
   const [phase, setPhase] = useState<Phase>("splash")
   const timer = useFocusTimer()
+  const storm = useAmbientRain()
   // Pause all CSS animations while the tab runs in the background.
   useTabVisible()
 
@@ -95,10 +97,15 @@ export function SynapseApp() {
         <WelcomeScreen userName={userName} onContinue={() => setPhase("intro")} />
       )}
       {phase === "intro" && userName && (
-        <IntroCarousel userName={userName} onDone={() => setPhase("loading")} />
+        <IntroCarousel
+          userName={userName}
+          onDone={() => setPhase("loading")}
+          stormEnabled={storm.enabled}
+          onStormChange={storm.setStorm}
+        />
       )}
       {phase === "loading" && <AppLoadingScreen onDone={() => setPhase("ready")} />}
-      <Header />
+      <Header stormEnabled={storm.enabled} onStormToggle={storm.toggle} stormFlash={storm.flash} />
       {/* flex-1 pushes the nav to the viewport bottom on short tabs. */}
       <div className="flex flex-1 flex-col">
         {view === "focus" ? (
