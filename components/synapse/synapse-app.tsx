@@ -20,6 +20,8 @@ import { cn } from "@/lib/utils"
 type Phase = "splash" | "name" | "welcome" | "intro" | "loading" | "ready"
 
 const INTRO_KEY = "synapse:intro-seen"
+/** Sticky per-device switch: when set, this device replays onboarding every launch. */
+const REPLAY_KEY = "synapse:replay-tour"
 
 /**
  * Dev-only bypass: append ?tour=1 (or ?intro=1 / ?preview=1) to the URL to
@@ -29,7 +31,9 @@ function isTourPreview(): boolean {
   if (typeof window === "undefined") return false
   try {
     const q = new URLSearchParams(window.location.search)
-    return q.has("tour") || q.has("intro") || q.has("preview")
+    if (q.has("tour") || q.has("intro") || q.has("preview")) return true
+    // Sticky replay enabled earlier via ?replay=1 on this device.
+    return window.localStorage.getItem(REPLAY_KEY) === "1"
   } catch {
     return false
   }
@@ -55,6 +59,13 @@ export function SynapseApp() {
 
   useEffect(() => {
     setUserNameState(getUserName())
+    // ?replay=1 pins full-onboarding replay to this device (persists across
+    // launches); ?replay=0 removes the pin again.
+    try {
+      const q = new URLSearchParams(window.location.search)
+      if (q.get("replay") === "1") window.localStorage.setItem(REPLAY_KEY, "1")
+      else if (q.get("replay") === "0") window.localStorage.removeItem(REPLAY_KEY)
+    } catch {}
   }, [])
 
   const handleSplashDone = () => {
