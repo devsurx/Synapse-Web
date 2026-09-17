@@ -12,6 +12,7 @@ import { FocusVisual } from "./focus-visual"
 import { useFocusTimer } from "@/hooks/use-focus-timer"
 import { useTabVisible } from "@/hooks/use-tab-visible"
 import { getUserName, setUserName } from "@/lib/profile"
+import { cn } from "@/lib/utils"
 
 type Phase = "splash" | "name" | "welcome" | "intro" | "loading" | "ready"
 
@@ -41,10 +42,15 @@ export function SynapseApp() {
     <main className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8">
       {/* Opaque base layer while onboarding: covers the home screen during
           the gaps when one overlay has unmounted and the next is fading in,
-          so the app chrome never flashes in between. */}
-      {phase !== "ready" && (
-        <div aria-hidden className="fixed inset-0 z-30 bg-background" />
-      )}
+          so the app chrome never flashes in between. Stays mounted with a
+          fade so the final reveal of the app eases out smoothly. */}
+      <div
+        aria-hidden
+        className={cn(
+          "fixed inset-0 z-30 bg-background transition-opacity duration-700 ease-out",
+          phase !== "ready" ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+      />
       {phase === "splash" && <SplashScreen onDone={handleSplashDone} />}
       {phase === "name" && <NamePrompt onSubmit={handleName} />}
       {phase === "welcome" && userName && (

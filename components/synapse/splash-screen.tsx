@@ -17,10 +17,13 @@ interface SplashScreenProps {
 
 export function SplashScreen({ onDone, holdMs = 2000 }: SplashScreenProps) {
   const [phase, setPhase] = useState<"in" | "out" | "done">("in")
+  const [entered, setEntered] = useState(false)
   const [progress, setProgress] = useState(0)
   const onDoneRef = useCallback(() => onDone?.(), [onDone])
 
   useEffect(() => {
+    // Fade in on mount so the splash eases on instead of popping in.
+    const t0 = setTimeout(() => setEntered(true), 30)
     // Smooth fake progress bar that eases toward 100%.
     const start = performance.now()
     let raf = 0
@@ -36,9 +39,10 @@ export function SplashScreen({ onDone, holdMs = 2000 }: SplashScreenProps) {
     const t2 = setTimeout(() => {
       setPhase("done")
       onDoneRef()
-    }, holdMs + 550)
+    }, holdMs + 650)
     return () => {
       cancelAnimationFrame(raf)
+      clearTimeout(t0)
       clearTimeout(t1)
       clearTimeout(t2)
     }
@@ -59,8 +63,8 @@ export function SplashScreen({ onDone, holdMs = 2000 }: SplashScreenProps) {
       role="status"
       aria-label="Loading Synapse"
       onClick={skip}
-      className="fixed inset-0 z-[60] flex cursor-pointer flex-col items-center justify-center bg-background px-6 transition-opacity duration-500"
-      style={{ opacity: phase === "out" ? 0 : 1, pointerEvents: phase === "out" ? "none" : undefined }}
+      className="fixed inset-0 z-[60] flex cursor-pointer flex-col items-center justify-center bg-background px-6 transition-opacity duration-700 ease-out"
+      style={{ opacity: phase === "out" ? 0 : entered ? 1 : 0, pointerEvents: phase === "out" ? "none" : undefined }}
     >
       <div
         aria-hidden
@@ -121,6 +125,7 @@ interface WelcomeScreenProps {
 
 export function WelcomeScreen({ userName, onContinue }: WelcomeScreenProps) {
   const [visible, setVisible] = useState(false)
+  const [leaving, setLeaving] = useState(false)
   const [greeting, setGreeting] = useState("Welcome")
 
   useEffect(() => {
@@ -129,11 +134,17 @@ export function WelcomeScreen({ userName, onContinue }: WelcomeScreenProps) {
     return () => clearTimeout(t)
   }, [])
 
+  const cont = useCallback(() => {
+    // Graceful exit: fade out before handing off to the carousel.
+    setLeaving(true)
+    setTimeout(() => onContinue(), 500)
+  }, [onContinue])
+
   return (
     <div
       className={cn(
-        "fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background px-6 py-8 transition-opacity duration-500",
-        visible ? "opacity-100" : "pointer-events-none opacity-0",
+        "fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background px-6 py-8 transition-opacity duration-700 ease-out",
+        leaving ? "pointer-events-none opacity-0" : visible ? "opacity-100" : "pointer-events-none opacity-0",
       )}
     >
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -169,7 +180,7 @@ export function WelcomeScreen({ userName, onContinue }: WelcomeScreenProps) {
 
         <button
           type="button"
-          onClick={onContinue}
+          onClick={cont}
           autoFocus
           className="mt-8 inline-flex w-48 items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02] active:scale-95 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300"
         >
@@ -202,11 +213,14 @@ interface AppLoadingScreenProps {
 
 export function AppLoadingScreen({ onDone, holdMs = 2200 }: AppLoadingScreenProps) {
   const [phase, setPhase] = useState<"in" | "out" | "done">("in")
+  const [entered, setEntered] = useState(false)
   const [progress, setProgress] = useState(0)
   const [tipIndex, setTipIndex] = useState(0)
   const onDoneRef = useCallback(() => onDone?.(), [onDone])
 
   useEffect(() => {
+    // Fade in on mount so the loader eases on instead of popping in.
+    const t0 = setTimeout(() => setEntered(true), 30)
     const start = performance.now()
     let raf = 0
     const tick = (now: number) => {
@@ -224,10 +238,11 @@ export function AppLoadingScreen({ onDone, holdMs = 2200 }: AppLoadingScreenProp
     const t2 = setTimeout(() => {
       setPhase("done")
       onDoneRef()
-    }, holdMs + 500)
+    }, holdMs + 650)
     return () => {
       cancelAnimationFrame(raf)
       clearInterval(tipTimer)
+      clearTimeout(t0)
       clearTimeout(t1)
       clearTimeout(t2)
     }
@@ -239,8 +254,8 @@ export function AppLoadingScreen({ onDone, holdMs = 2200 }: AppLoadingScreenProp
     <div
       role="status"
       aria-label="Preparing your workspace"
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 transition-opacity duration-500"
-      style={{ opacity: phase === "out" ? 0 : 1, pointerEvents: phase === "out" ? "none" : undefined }}
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 transition-opacity duration-700 ease-out"
+      style={{ opacity: phase === "out" ? 0 : entered ? 1 : 0, pointerEvents: phase === "out" ? "none" : undefined }}
     >
       <div
         aria-hidden

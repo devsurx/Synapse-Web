@@ -22,6 +22,7 @@ interface NamePromptProps {
 export function NamePrompt({ onSubmit }: NamePromptProps) {
   const [value, setValue] = useState("")
   const [visible, setVisible] = useState(false)
+  const [leaving, setLeaving] = useState(false)
 
   useEffect(() => {
     setValue(loadName())
@@ -31,18 +32,20 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
 
   const submit = () => {
     const name = value.trim()
-    if (!name) return
+    if (!name || leaving) return
     try {
       window.localStorage.setItem(NAME_KEY, name)
     } catch {}
-    onSubmit(name)
+    // Graceful exit: fade out before handing off to the welcome screen.
+    setLeaving(true)
+    setTimeout(() => onSubmit(name), 500)
   }
 
   return (
     <div
       className={cn(
-        "fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-background px-6 py-8 transition-opacity duration-400",
-        visible ? "opacity-100" : "opacity-0",
+        "fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-background px-6 py-8 transition-opacity duration-700 ease-out",
+        leaving ? "pointer-events-none opacity-0" : visible ? "opacity-100" : "opacity-0",
       )}
     >
       <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">

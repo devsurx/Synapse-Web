@@ -85,7 +85,7 @@ export function IntroCarousel({ userName, onDone }: { userName: string; onDone?:
       localStorage.setItem(INTRO_KEY, "1")
       setSeen(true)
       onDoneRef.current?.()
-    }, 400)
+    }, 550)
   }, [])
 
   if (seen) return null
@@ -103,7 +103,7 @@ export function IntroCarousel({ userName, onDone }: { userName: string; onDone?:
   return (
     <div
       className={cn(
-        "fixed inset-0 z-40 flex flex-col items-center justify-center overflow-y-auto bg-background px-6 py-8 transition-opacity duration-400",
+        "fixed inset-0 z-40 flex flex-col items-center justify-center overflow-y-auto bg-background px-6 py-8 transition-opacity duration-700 ease-out",
         visible ? "opacity-100" : "pointer-events-none opacity-0",
       )}
       onTouchStart={onTouchStart}
