@@ -1,7 +1,6 @@
 "use client"
 
 import type { ViewId } from "./bottom-nav"
-import { SquadTab } from "./squad"
 import { ChatTab } from "./tools/chat-tab"
 import { Eli5Tab } from "./tools/eli5-tab"
 import { FeynmanTab } from "./tools/feynman-tab"
@@ -16,7 +15,6 @@ export function ToolView({ view }: { view: Exclude<ViewId, "focus"> }) {
       {view === "flashcards" && <FlashcardsTab />}
       {view === "chat" && <ChatTab />}
       {view === "planner" && <PlannerTab />}
-      {view === "squad" && <SquadTab />}
     </>
   )
 }

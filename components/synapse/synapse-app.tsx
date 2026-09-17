@@ -9,6 +9,8 @@ import { AppLoadingScreen, SplashScreen, WelcomeScreen } from "./splash-screen"
 import { ToolView } from "./tool-view"
 import { FocusTimer } from "./focus-timer"
 import { FocusVisual } from "./focus-visual"
+import { StreakBar } from "./streak-bar"
+import { StoryShareButton } from "./story-export"
 import { useFocusTimer } from "@/hooks/use-focus-timer"
 import { useTabVisible } from "@/hooks/use-tab-visible"
 import { getUserName, setUserName } from "@/lib/profile"
@@ -62,19 +64,29 @@ export function SynapseApp() {
       {phase === "loading" && <AppLoadingScreen onDone={() => setPhase("ready")} />}
       <Header />
       {view === "focus" ? (
-        <div className="grid h-full min-h-[70vh] flex-1 items-center gap-6 lg:grid-cols-[1.1fr_1fr]">
-          <FocusTimer
-            mode={timer.mode}
-            setMode={timer.setMode}
-            secondsLeft={timer.secondsLeft}
-            isRunning={timer.isRunning}
-            todaySessions={timer.todaySessions}
-            durations={timer.durations}
-            updateDuration={timer.updateDuration}
-            toggle={timer.toggle}
-            reset={timer.reset}
-          />
-          <FocusVisual progress={timer.progress} isRunning={timer.isRunning} mode={timer.mode} />
+        <div className="flex h-full min-h-[70vh] flex-1 flex-col gap-6">
+          <div className="grid flex-1 items-center gap-6 lg:grid-cols-[1.1fr_1fr]">
+            <FocusTimer
+              mode={timer.mode}
+              setMode={timer.setMode}
+              secondsLeft={timer.secondsLeft}
+              isRunning={timer.isRunning}
+              todaySessions={timer.todaySessions}
+              durations={timer.durations}
+              updateDuration={timer.updateDuration}
+              toggle={timer.toggle}
+              reset={timer.reset}
+            />
+            <FocusVisual progress={timer.progress} isRunning={timer.isRunning} mode={timer.mode} />
+          </div>
+          {/* Personal progress — only the user's own focus data. */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3 px-1">
+              <h2 className="font-serif text-xl text-foreground">Your progress</h2>
+              <StoryShareButton />
+            </div>
+            <StreakBar />
+          </div>
         </div>
       ) : (
         <ToolView view={view} />

@@ -1,6 +1,6 @@
 "use client"
 
-import { Brain, Leaf, Timer, Users } from "lucide-react"
+import { Brain, Leaf, Share2, Timer } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 
@@ -45,11 +45,11 @@ const slides: Slide[] = [
     ],
   },
   {
-    Icon: Users,
+    Icon: Share2,
     accent: "text-blue-400",
     bg: "bg-blue-400/15",
-    title: "Grow with squads",
-    body: "Share streaks, nudge friends along, and keep each other coming back.",
+    title: "Share your story",
+    body: "Export a minimal card of your own focus — hours, streak, and rank — ready to post anywhere.",
   },
 ]
 

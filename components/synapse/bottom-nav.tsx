@@ -1,9 +1,9 @@
 "use client"
 
-import { BookOpen, Brain, Layers, MessageCircle, Sprout, Timer, Users } from "lucide-react"
+import { BookOpen, Brain, Layers, MessageCircle, Sprout, Timer } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export type ViewId = "focus" | "feynman" | "eli5" | "flashcards" | "chat" | "planner" | "squad"
+export type ViewId = "focus" | "feynman" | "eli5" | "flashcards" | "chat" | "planner"
 
 export const NAV_ITEMS: { id: ViewId; label: string; icon: typeof Brain }[] = [
   { id: "focus", label: "Focus", icon: Timer },
@@ -12,7 +12,6 @@ export const NAV_ITEMS: { id: ViewId; label: string; icon: typeof Brain }[] = [
   { id: "flashcards", label: "Flashcards", icon: Layers },
   { id: "chat", label: "Chat", icon: MessageCircle },
   { id: "planner", label: "Planner", icon: BookOpen },
-  { id: "squad", label: "Squad", icon: Users },
 ]
 
 interface BottomNavProps {
