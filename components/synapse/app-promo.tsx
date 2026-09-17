@@ -2,6 +2,7 @@
 
 import { Download, Smartphone, X } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useIsMobileDevice } from "@/hooks/use-is-mobile"
 import { cn } from "@/lib/utils"
 
 export const APP_RELEASE_URL = "https://github.com/devsurx/Synapse/releases/tag/0.4"
@@ -28,6 +29,7 @@ function dismiss() {
  * Render only once the main app is ready; stays hidden forever after dismiss.
  */
 export function AppPromoPopup() {
+  const isMobile = useIsMobileDevice()
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export function AppPromoPopup() {
     return () => clearTimeout(t)
   }, [])
 
-  if (!visible) return null
+  if (!isMobile || !visible) return null
 
   const close = () => {
     setVisible(false)
@@ -93,6 +95,8 @@ export function AppPromoPopup() {
  * Persistent compact download section for the home screen.
  */
 export function AppPromoSection() {
+  const isMobile = useIsMobileDevice()
+  if (!isMobile) return null
   return (
     <div
       className={cn(
