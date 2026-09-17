@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
+import { RainCanvas } from "./rain-canvas"
 
 const CLOUDS = [
   { top: "6%", scale: 1.6, opacity: 0.5, duration: 46, delay: -8 },
@@ -154,9 +155,8 @@ export function StormLayer({ enabled, flash }: { enabled: boolean; flash: number
         </div>
       ))}
 
-      {/* rain streaks */}
-      <div className="absolute inset-0 opacity-70 rain-layer" />
-      <div className="absolute inset-0 opacity-40 rain-layer" style={{ animationDuration: "0.7s" }} />
+      {/* rain streaks — discrete canvas drops with depth parallax */}
+      <RainCanvas className="absolute inset-0 h-full w-full opacity-80" />
 
       {/* lightning: localized sky illumination + a jagged bolt, never a full white wash */}
       {strike && (
