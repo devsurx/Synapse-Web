@@ -23,7 +23,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
   return (
     <nav
       aria-label="Learning tools"
-      className="mx-auto flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-full border border-border bg-card/70 p-1.5 backdrop-blur"
+      className="sticky bottom-4 z-20 mx-auto flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-full border border-border bg-card/70 p-1.5 backdrop-blur"
     >
       {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
         const isActive = active === id

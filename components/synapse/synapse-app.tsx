@@ -63,7 +63,9 @@ export function SynapseApp() {
       )}
       {phase === "loading" && <AppLoadingScreen onDone={() => setPhase("ready")} />}
       <Header />
-      {view === "focus" ? (
+      {/* flex-1 pushes the nav to the viewport bottom on short tabs. */}
+      <div className="flex flex-1 flex-col">
+        {view === "focus" ? (
         <div className="flex h-full min-h-[70vh] flex-1 flex-col gap-6">
           <div className="grid flex-1 items-center gap-6 lg:grid-cols-[1.1fr_1fr]">
             <FocusTimer
@@ -88,9 +90,10 @@ export function SynapseApp() {
             <StreakBar />
           </div>
         </div>
-      ) : (
-        <ToolView view={view} />
-      )}
+        ) : (
+          <ToolView view={view} />
+        )}
+      </div>
       <BottomNav active={view} onChange={setView} />
     </main>
   )
