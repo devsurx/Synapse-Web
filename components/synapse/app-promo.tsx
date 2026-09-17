@@ -78,7 +78,7 @@ export function AppPromoPopup() {
           <Download className="size-4" />
           Download the app
         </a>
-        <p className="mt-3 text-xs text-muted-foreground/70">v0.5 · free via GitHub Releases</p>
+        <p className="mt-3 text-xs text-muted-foreground/70">Android only · v0.5 · free via GitHub Releases</p>
         <button
           type="button"
           onClick={close}
@@ -108,7 +108,7 @@ export function AppPromoSection() {
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-foreground">Synapse on your phone</p>
-        <p className="truncate text-xs text-muted-foreground">Mobile app · v0.5 · free</p>
+        <p className="truncate text-xs text-muted-foreground">Android app · v0.5 · free</p>
       </div>
       <a
         href={APP_RELEASE_URL}
