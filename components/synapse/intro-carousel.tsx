@@ -53,12 +53,14 @@ const slides: Slide[] = [
   },
 ]
 
-export function IntroCarousel({ userName }: { userName: string }) {
+export function IntroCarousel({ userName, onDone }: { userName: string; onDone?: () => void }) {
   const [seen, setSeen] = useState(true)
   const [current, setCurrent] = useState(0)
   const [visible, setVisible] = useState(false)
   const [touchX, setTouchX] = useState<number | null>(null)
   const trackRef = useRef<HTMLDivElement>(null)
+  const onDoneRef = useRef(onDone)
+  onDoneRef.current = onDone
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -82,6 +84,7 @@ export function IntroCarousel({ userName }: { userName: string }) {
     setTimeout(() => {
       localStorage.setItem(INTRO_KEY, "1")
       setSeen(true)
+      onDoneRef.current?.()
     }, 400)
   }, [])
 
