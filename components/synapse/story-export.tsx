@@ -229,7 +229,15 @@ export function StoryShareButton() {
     if (!node || exporting) return
     setExporting(true)
     try {
-      const dataUrl = await toPng(node, { cacheBust: true, pixelRatio: 1 })
+      const dataUrl = await toPng(node, {
+        cacheBust: true,
+        pixelRatio: 1,
+        width: CARD_W,
+        height: CARD_H,
+        // Belt-and-braces: the export node must render at full size with
+        // no preview scaling so IG gets an exact 1080x1920 full-bleed image.
+        style: { transform: "none", margin: "0" },
+      })
       const blob = await (await fetch(dataUrl)).blob()
       const file = new File([blob], "synapse-story.png", { type: "image/png" })
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
@@ -260,13 +268,14 @@ export function StoryShareButton() {
 
       {open && snap && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 overflow-y-auto bg-black/70 p-4 backdrop-blur-sm">
-          {/* scaled preview of the full-size export node */}
+          {/* scaled preview of the full-size export node.
+              The transform lives on a wrapper OUTSIDE the export node so the
+              PNG renders at the full 1080x1920 with no scaling. */}
           <div
             className="overflow-hidden rounded-2xl shadow-2xl"
             style={{ width: CARD_W * PREVIEW_SCALE, height: CARD_H * PREVIEW_SCALE }}
           >
             <div
-              ref={cardRef}
               style={{
                 width: CARD_W,
                 height: CARD_H,
@@ -274,7 +283,9 @@ export function StoryShareButton() {
                 transformOrigin: "top left",
               }}
             >
-              <StoryCard snap={snap} theme={theme} />
+              <div ref={cardRef} style={{ width: CARD_W, height: CARD_H }}>
+                <StoryCard snap={snap} theme={theme} />
+              </div>
             </div>
           </div>
           {/* theme picker */}
