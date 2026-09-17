@@ -31,11 +31,11 @@ export function Header() {
           alt="Synapse logo"
           width={44}
           height={44}
-          className="size-11 rounded-full object-cover"
+          className="size-9 rounded-full object-cover sm:size-11"
           priority
         />
         <div className="flex min-w-0 items-center gap-3">
-          <span className="truncate font-serif text-3xl leading-none text-foreground">Synapse</span>
+          <span className="truncate font-serif text-2xl leading-none text-foreground sm:text-3xl">Synapse</span>
           <RankChip
             rank={rank}
             next={next}
@@ -51,14 +51,14 @@ export function Header() {
         onClick={toggle}
         aria-pressed={enabled}
         className={cn(
-          "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors",
+          "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors sm:px-4",
           enabled
             ? "border-sky-400/40 bg-sky-400/10 text-sky-300"
             : "border-border bg-card/60 text-muted-foreground hover:text-foreground",
         )}
       >
         <CloudRain className={cn("size-4", enabled && "animate-pulse")} strokeWidth={1.75} />
-        {enabled ? "Storm on" : "Storm off"}
+        <span className="hidden sm:inline">{enabled ? "Storm on" : "Storm off"}</span>
       </button>
 
       <StormLayer enabled={enabled} flash={flash} />

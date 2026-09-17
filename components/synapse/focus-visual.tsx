@@ -58,16 +58,16 @@ export function FocusVisual({ progress, isRunning, mode }: FocusVisualProps) {
         )}
       />
 
-      {/* faint foliage anchors tucked inside the rounded corner */}
+      {/* faint foliage anchors tucked inside the rounded corner (desktop only) */}
       <Leaf
         aria-hidden
-        className="absolute left-1 top-1 size-36 rotate-[135deg] text-accent/10"
+        className="absolute left-1 top-1 hidden size-36 rotate-[135deg] text-accent/10 sm:block"
         strokeWidth={1}
         fill="currentColor"
       />
       <Leaf
         aria-hidden
-        className="absolute bottom-1 right-1 size-40 -rotate-45 text-primary/10"
+        className="absolute bottom-1 right-1 hidden size-40 -rotate-45 text-primary/10 sm:block"
         strokeWidth={1}
         fill="currentColor"
       />
@@ -89,10 +89,10 @@ export function FocusVisual({ progress, isRunning, mode }: FocusVisualProps) {
         }}
       />
 
-      {/* decorative halo ring around the center */}
+      {/* decorative halo ring around the center (desktop only) */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[68%] max-w-[260px] -translate-x-1/2 -translate-y-1/2"
+        className="pointer-events-none absolute left-1/2 top-1/2 hidden aspect-square w-[68%] max-w-[260px] -translate-x-1/2 -translate-y-1/2 sm:block"
       >
         <div
           className="absolute inset-0 rounded-full border border-border/25"
@@ -145,7 +145,7 @@ export function FocusVisual({ progress, isRunning, mode }: FocusVisualProps) {
 
       <svg
         viewBox="0 0 160 160"
-        className="relative z-10 h-[46%] max-h-72 w-auto"
+        className="relative z-10 h-[46%] max-h-56 w-auto sm:max-h-72"
         role="img"
         aria-label={`Focus plant, ${Math.round(p * 100)} percent grown`}
       >
@@ -206,7 +206,7 @@ export function FocusVisual({ progress, isRunning, mode }: FocusVisualProps) {
 
       <div
         key={isRunning ? "running" : "stopped"}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center"
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center sm:bottom-8"
       >
         <p
           className={cn(

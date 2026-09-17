@@ -34,7 +34,7 @@ export function StreakBar() {
   const total = days.reduce((a, d) => a + d.sessions, 0)
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-2xl border border-border bg-card/60 px-5 py-4">
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-2xl border border-border bg-card/60 px-4 py-3 sm:px-5 sm:py-4">
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-foreground">Last 14 days</p>
         <p className="text-xs text-muted-foreground">{total} sessions completed</p>

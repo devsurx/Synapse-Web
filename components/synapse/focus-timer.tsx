@@ -37,7 +37,7 @@ export function FocusTimer({
   reset,
 }: FocusTimerProps) {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-8 px-6 py-10">
+    <div className="flex h-full flex-col items-center justify-center gap-5 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10">
       {/* mode toggle */}
       <div className="inline-flex rounded-full border border-border bg-secondary/60 p-1">
         {(["focus", "break"] as const).map((m) => (
@@ -60,12 +60,12 @@ export function FocusTimer({
       {/* time */}
       <div className="text-center">
         <p
-          className="font-serif text-[clamp(4.5rem,12vw,8rem)] leading-none tracking-tight tabular-nums text-foreground"
+          className="font-serif text-[clamp(3.75rem,17vw,8rem)] leading-none tracking-tight tabular-nums text-foreground"
           aria-live="polite"
         >
           {format(secondsLeft)}
         </p>
-        <p className="mt-3 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-muted-foreground sm:mt-3">
           {todaySessions} focus {todaySessions === 1 ? "session" : "sessions"} today
         </p>
       </div>
@@ -107,7 +107,7 @@ export function FocusTimer({
           }}
           aria-label="Pop out timer"
           title="Pop out timer"
-          className="inline-flex size-11 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          className="hidden size-11 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground sm:inline-flex"
         >
           <ExternalLink className="size-5" />
         </button>

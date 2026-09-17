@@ -77,7 +77,7 @@ export function SynapseApp() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8">
+    <main className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:gap-6 sm:px-8 sm:py-8">
       {/* Opaque base layer while onboarding: covers the home screen during
           the gaps when one overlay has unmounted and the next is fading in,
           so the app chrome never flashes in between. Stays mounted with a
@@ -102,8 +102,8 @@ export function SynapseApp() {
       {/* flex-1 pushes the nav to the viewport bottom on short tabs. */}
       <div className="flex flex-1 flex-col">
         {view === "focus" ? (
-        <div className="flex h-full min-h-[70vh] flex-1 flex-col gap-6">
-          <div className="grid flex-1 items-center gap-6 lg:grid-cols-[1.1fr_1fr]">
+        <div className="flex h-full min-h-[60vh] flex-1 flex-col gap-4 sm:min-h-[70vh] sm:gap-6">
+          <div className="grid flex-1 items-center gap-2 sm:gap-6 lg:grid-cols-[1.1fr_1fr]">
             <FocusTimer
               mode={timer.mode}
               setMode={timer.setMode}
@@ -118,9 +118,9 @@ export function SynapseApp() {
             <FocusVisual progress={timer.progress} isRunning={timer.isRunning} mode={timer.mode} />
           </div>
           {/* Personal progress — only the user's own focus data. */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2 sm:gap-3">
             <div className="flex items-center justify-between gap-3 px-1">
-              <h2 className="font-serif text-xl text-foreground">Your progress</h2>
+              <h2 className="font-serif text-lg text-foreground sm:text-xl">Your progress</h2>
               <StoryShareButton />
             </div>
             <StreakBar />

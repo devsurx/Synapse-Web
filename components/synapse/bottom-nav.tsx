@@ -34,7 +34,7 @@ export function BottomNav({ active, onChange }: BottomNavProps) {
             onClick={() => onChange(id)}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex shrink-0 flex-col items-center gap-1 rounded-full px-4 py-2 text-xs font-medium transition-colors",
+              "flex shrink-0 flex-col items-center gap-1 rounded-full px-3 py-2 text-xs font-medium transition-colors sm:px-4",
               isActive
                 ? "bg-secondary text-foreground"
                 : "text-muted-foreground hover:text-foreground",
