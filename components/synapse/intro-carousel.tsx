@@ -1,6 +1,6 @@
 "use client"
 
-import { Brain, CloudRain, Leaf, Share2, Sun, Timer } from "lucide-react"
+import { Brain, CloudRain, Share2, Sun, Timer, Trophy } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 
@@ -26,11 +26,11 @@ const slides: Slide[] = [
     body: "Timed focus and break cycles — 25 minutes on, 5 off — that turn concentration into a daily habit.",
   },
   {
-    Icon: Leaf,
+    Icon: Trophy,
     accent: "text-[#5cb85c]",
     bg: "bg-[#5cb85c]/15",
-    title: "Watch progress grow",
-    body: "Every session feeds a living plant that rises, unfurls, and blooms while you stay on task.",
+    title: "Watch your numbers grow",
+    body: "A live dashboard of today's minutes, streak, and rank — rising with every session.",
   },
   {
     Icon: Brain,

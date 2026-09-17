@@ -3,7 +3,6 @@
 import { Download, Smartphone, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useIsMobileDevice } from "@/hooks/use-is-mobile"
-import { cn } from "@/lib/utils"
 
 export const APP_RELEASE_URL = "https://github.com/devsurx/Synapse/releases/tag/v0.5"
 
@@ -87,38 +86,6 @@ export function AppPromoPopup() {
           Maybe later
         </button>
       </div>
-    </div>
-  )
-}
-
-/**
- * Persistent compact download section for the home screen.
- */
-export function AppPromoSection() {
-  const isMobile = useIsMobileDevice()
-  if (!isMobile) return null
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-4 rounded-2xl border border-border bg-card/60 px-4 py-3.5 sm:px-5 sm:py-4",
-      )}
-    >
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent/15">
-        <Smartphone className="size-5 text-accent" strokeWidth={1.75} />
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-foreground">Synapse on your phone</p>
-        <p className="truncate text-xs text-muted-foreground">Android app · v0.5 · free</p>
-      </div>
-      <a
-        href={APP_RELEASE_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-transform hover:scale-[1.03] active:scale-95"
-      >
-        <Download className="size-3.5" />
-        Get app
-      </a>
     </div>
   )
 }

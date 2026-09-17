@@ -22,8 +22,7 @@ A calm focus companion. Run deep-work sessions, grow your streak, and study smar
 | | Tool | What it does |
 | --- | --- | --- |
 | ⏱ | **Focus Timer** | 25-minute deep-work and 5-minute break sessions with a Pomodoro-style cycle. |
-| 🌱 | **Growth Visual** | A plant rises, unfurls leaves, and blooms as your session progresses, set against an ambient breathing glow and drifting spores. |
-| 🔥 | **Streak Bar** | Last-14-day activity at a glance to keep the momentum going. |
+| 📊 | **Focus Stats** | A live dashboard of today's minutes, streak, and rank progress that updates with every session. |
 | 🌧 | **Ambient Rain** | An optional rain toggle for a calmer background. |
 | 🧠 | **Learning Tools** | Feynman Mode, ELI5, Flashcards, and Planner — a growing suite of study companions. |
 | ✦ | **Story Export** | A minimal, share-ready card of your own focus stats — hours, streak, and rank. |

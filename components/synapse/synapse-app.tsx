@@ -8,7 +8,7 @@ import { NamePrompt } from "./name-prompt"
 import { AppLoadingScreen, SplashScreen, WelcomeScreen } from "./splash-screen"
 import { ToolView } from "./tool-view"
 import { FocusTimer } from "./focus-timer"
-import { FocusVisual } from "./focus-visual"
+import { FocusStats } from "./focus-stats"
 import { useFocusTimer } from "@/hooks/use-focus-timer"
 import { useTabVisible } from "@/hooks/use-tab-visible"
 import { useAmbientRain } from "@/hooks/use-ambient-rain"
@@ -131,7 +131,7 @@ export function SynapseApp() {
             toggle={timer.toggle}
             reset={timer.reset}
           />
-          <FocusVisual progress={timer.progress} isRunning={timer.isRunning} mode={timer.mode} />
+            <FocusStats />
         </div>
         ) : (
           <ToolView view={view} />
