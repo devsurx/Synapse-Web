@@ -18,6 +18,31 @@ import { cn } from "@/lib/utils"
 
 type Phase = "splash" | "name" | "welcome" | "intro" | "loading" | "ready"
 
+const INTRO_KEY = "synapse:intro-seen"
+
+/**
+ * Dev-only bypass: append ?tour=1 (or ?intro=1 / ?preview=1) to the URL to
+ * replay the full onboarding (welcome + intro) even after it was seen.
+ */
+function isTourPreview(): boolean {
+  if (typeof window === "undefined") return false
+  try {
+    const q = new URLSearchParams(window.location.search)
+    return q.has("tour") || q.has("intro") || q.has("preview")
+  } catch {
+    return false
+  }
+}
+
+function hasSeenIntro(): boolean {
+  if (typeof window === "undefined") return false
+  try {
+    return window.localStorage.getItem(INTRO_KEY) === "1"
+  } catch {
+    return false
+  }
+}
+
 export function SynapseApp() {
   const [view, setView] = useState<ViewId>("focus")
   const [userName, setUserNameState] = useState<string | null>(null)
@@ -31,7 +56,18 @@ export function SynapseApp() {
   }, [])
 
   const handleSplashDone = () => {
-    setPhase(getUserName() ? "welcome" : "name")
+    // Dev preview bypasses the seen-flag so you can always replay the tour.
+    if (isTourPreview()) {
+      setPhase(getUserName() ? "welcome" : "name")
+      return
+    }
+    // Brand-new users: name -> welcome -> intro. Returning users go
+    // straight to a quick loader, skipping welcome + intro entirely.
+    if (!getUserName()) {
+      setPhase("name")
+      return
+    }
+    setPhase(hasSeenIntro() ? "loading" : "welcome")
   }
 
   const handleName = (name: string) => {

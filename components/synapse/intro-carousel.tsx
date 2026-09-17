@@ -64,7 +64,8 @@ export function IntroCarousel({ userName, onDone }: { userName: string; onDone?:
 
   useEffect(() => {
     if (typeof window === "undefined") return
-    // Always show the intro on this device — don't gate on the seen flag.
+    // The parent only mounts the intro for new users (or ?tour=1 previews),
+    // so reaching this point means the tour should play.
     setSeen(false)
     const t = setTimeout(() => setVisible(true), 80)
     return () => clearTimeout(t)
