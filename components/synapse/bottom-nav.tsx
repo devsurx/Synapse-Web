@@ -1,12 +1,13 @@
 "use client"
 
-import { BookOpen, Brain, Layers, Sprout, Timer } from "lucide-react"
+import { BookOpen, Brain, Layers, Sprout, Timer, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export type ViewId = "focus" | "feynman" | "eli5" | "flashcards" | "planner"
+export type ViewId = "focus" | "progress" | "feynman" | "eli5" | "flashcards" | "planner"
 
 export const NAV_ITEMS: { id: ViewId; label: string; icon: typeof Brain }[] = [
   { id: "focus", label: "Focus", icon: Timer },
+  { id: "progress", label: "Progress", icon: Trophy },
   { id: "feynman", label: "Feynman", icon: Brain },
   { id: "eli5", label: "ELI5", icon: Sprout },
   { id: "flashcards", label: "Flashcards", icon: Layers },

@@ -2,6 +2,7 @@
 
 import type { ViewId } from "./bottom-nav"
 import { cn } from "@/lib/utils"
+import { ProgressTab } from "./progress-tab"
 import { Eli5Tab } from "./tools/eli5-tab"
 import { FeynmanTab } from "./tools/feynman-tab"
 import { FlashcardsTab } from "./tools/flashcards-tab"
@@ -10,6 +11,7 @@ import { PlannerTab } from "./tools/planner-tab"
 type ToolId = Exclude<ViewId, "focus">
 
 const TABS: { id: ToolId; El: () => React.JSX.Element }[] = [
+  { id: "progress", El: ProgressTab },
   { id: "feynman", El: FeynmanTab },
   { id: "eli5", El: Eli5Tab },
   { id: "flashcards", El: FlashcardsTab },

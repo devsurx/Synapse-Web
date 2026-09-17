@@ -9,12 +9,10 @@ import { AppLoadingScreen, SplashScreen, WelcomeScreen } from "./splash-screen"
 import { ToolView } from "./tool-view"
 import { FocusTimer } from "./focus-timer"
 import { FocusVisual } from "./focus-visual"
-import { StreakBar } from "./streak-bar"
-import { StoryShareButton } from "./story-export"
-import { AppPromoPopup, AppPromoSection } from "./app-promo"
 import { useFocusTimer } from "@/hooks/use-focus-timer"
 import { useTabVisible } from "@/hooks/use-tab-visible"
 import { useAmbientRain } from "@/hooks/use-ambient-rain"
+import { AppPromoPopup } from "./app-promo"
 import { getUserName, setUserName } from "@/lib/profile"
 import { cn } from "@/lib/utils"
 
@@ -121,30 +119,19 @@ export function SynapseApp() {
       {/* flex-1 pushes the nav to the viewport bottom on short tabs. */}
       <div className="flex flex-1 flex-col">
         {view === "focus" ? (
-        <div className="flex h-full min-h-[60vh] flex-1 flex-col gap-4 sm:min-h-[70vh] sm:gap-6">
-          <div className="grid flex-1 items-center gap-2 sm:gap-6 lg:grid-cols-[1.1fr_1fr]">
-            <FocusTimer
-              mode={timer.mode}
-              setMode={timer.setMode}
-              secondsLeft={timer.secondsLeft}
-              isRunning={timer.isRunning}
-              todaySessions={timer.todaySessions}
-              durations={timer.durations}
-              updateDuration={timer.updateDuration}
-              toggle={timer.toggle}
-              reset={timer.reset}
-            />
-            <FocusVisual progress={timer.progress} isRunning={timer.isRunning} mode={timer.mode} />
-          </div>
-          {/* Personal progress — only the user's own focus data. */}
-          <div className="flex flex-col gap-2 sm:gap-3">
-            <div className="flex items-center justify-between gap-3 px-1">
-              <h2 className="font-serif text-lg text-foreground sm:text-xl">Your progress</h2>
-              <StoryShareButton />
-            </div>
-            <StreakBar />
-            <AppPromoSection />
-          </div>
+        <div className="grid h-full min-h-[60vh] flex-1 items-center gap-2 sm:min-h-[70vh] sm:gap-6 lg:grid-cols-[1.1fr_1fr]">
+          <FocusTimer
+            mode={timer.mode}
+            setMode={timer.setMode}
+            secondsLeft={timer.secondsLeft}
+            isRunning={timer.isRunning}
+            todaySessions={timer.todaySessions}
+            durations={timer.durations}
+            updateDuration={timer.updateDuration}
+            toggle={timer.toggle}
+            reset={timer.reset}
+          />
+          <FocusVisual progress={timer.progress} isRunning={timer.isRunning} mode={timer.mode} />
         </div>
         ) : (
           <ToolView view={view} />
