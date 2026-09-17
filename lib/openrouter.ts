@@ -5,7 +5,10 @@ export interface ChatMessage {
   content: string
 }
 
-const DEFAULT_MODEL = process.env.OPENROUTER_MODEL || "openrouter/auto"
+// Free-only routing: openrouter/free picks a random free model per request,
+// so usage can never cost anything. (Free tier: 50 req/day per account,
+// 1,000/day once $10+ lifetime credits are purchased — free models stay $0.)
+const DEFAULT_MODEL = process.env.OPENROUTER_MODEL || "openrouter/free"
 
 export const AI_FEATURES: Record<
   AiFeature,
