@@ -35,12 +35,11 @@ const slides: Slide[] = [
     accent: "text-accent",
     bg: "bg-accent/15",
     title: "Study with AI",
-    body: "Five quiet companions that stream answers in real time, using the model you choose.",
+    body: "Four quiet companions that stream answers in real time, using the model you choose.",
     features: [
       { label: "Feynman", detail: "Teach it back — graded, with your gaps surfaced." },
       { label: "ELI5", detail: "Any hard topic, retold so a ten-year-old gets it." },
       { label: "Flashcards", detail: "Paste notes, get a review-ready deck." },
-      { label: "Chat", detail: "A co-pilot that keeps the thread with you." },
       { label: "Planner", detail: "Goals in, a realistic day plan out." },
     ],
   },

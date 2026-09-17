@@ -1,4 +1,4 @@
-export type AiFeature = "feynman" | "eli5" | "flashcards" | "chat" | "planner"
+export type AiFeature = "feynman" | "eli5" | "flashcards" | "planner"
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant"
@@ -28,12 +28,6 @@ export const AI_FEATURES: Record<
     system:
       "You convert study material into spaced-repetition flashcards. Return ONLY a JSON array of objects with exactly two fields, front and back. Front is a concise question or prompt; back is a short high-signal answer. Prefer atomic cards. Do not wrap in markdown fences and do not add any text outside the array.",
     temperature: 0.3,
-  },
-  chat: {
-    model: process.env.OPENROUTER_MODEL_CHAT || DEFAULT_MODEL,
-    system:
-      "You are Synapse, a calm AI study companion. You help users think clearly, understand difficult material, and stay focused. Be concise, warm, and encouraging. If asked about unrelated or harmful topics, gently steer back to studying.",
-    temperature: 0.7,
   },
   planner: {
     model: process.env.OPENROUTER_MODEL_PLANNER || DEFAULT_MODEL,

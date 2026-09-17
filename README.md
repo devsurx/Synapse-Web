@@ -25,7 +25,7 @@ A calm focus companion. Run deep-work sessions, grow your streak, and study smar
 | 🌱 | **Growth Visual** | A plant rises, unfurls leaves, and blooms as your session progresses, set against an ambient breathing glow and drifting spores. |
 | 🔥 | **Streak Bar** | Last-14-day activity at a glance to keep the momentum going. |
 | 🌧 | **Ambient Rain** | An optional rain toggle for a calmer background. |
-| 🧠 | **Learning Tools** | Feynman Mode, ELI5, Flashcards, Study Chat, and Planner — a growing suite of study companions. |
+| 🧠 | **Learning Tools** | Feynman Mode, ELI5, Flashcards, and Planner — a growing suite of study companions. |
 | ✦ | **Story Export** | A minimal, share-ready card of your own focus stats — hours, streak, and rank. |
 
 > The learning tools are currently placeholders and marked *Coming soon*.
