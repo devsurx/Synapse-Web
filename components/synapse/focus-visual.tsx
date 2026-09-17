@@ -36,11 +36,37 @@ export function FocusVisual({ progress, isRunning, mode }: FocusVisualProps) {
 
   return (
     <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
-      {/* ambient breathing glow */}
+      {/* Seamless ambient glow: edge-to-edge radial gradients that fade to
+          transparent, cross-fading between modes. Unlike blurred boxes these
+          have no element edges, so nothing can clip into a visible box —
+          especially on narrow phone screens. */}
       <div
         aria-hidden
         className={cn(
-          "absolute aspect-square w-[62%] rounded-full blur-3xl transition-all duration-1000",
+          "absolute inset-0 transition-opacity duration-1000",
+          mode === "focus" ? "opacity-100" : "opacity-0",
+        )}
+        style={{
+          background:
+            "radial-gradient(64% 48% at 50% 46%, oklch(0.76 0.11 150 / 0.22) 0%, oklch(0.76 0.11 150 / 0) 70%)",
+        }}
+      />
+      <div
+        aria-hidden
+        className={cn(
+          "absolute inset-0 transition-opacity duration-1000",
+          mode === "focus" ? "opacity-0" : "opacity-100",
+        )}
+        style={{
+          background:
+            "radial-gradient(64% 48% at 50% 46%, oklch(0.82 0.13 76 / 0.22) 0%, oklch(0.82 0.13 76 / 0) 70%)",
+        }}
+      />
+      {/* layered breathing glow (desktop only — the gradient above carries mobile) */}
+      <div
+        aria-hidden
+        className={cn(
+          "absolute hidden aspect-square w-[62%] rounded-full blur-3xl transition-all duration-1000 sm:block",
           isRunning ? "opacity-90" : "opacity-50",
           mode === "focus" ? "bg-accent/25" : "bg-primary/25",
         )}
@@ -52,7 +78,7 @@ export function FocusVisual({ progress, isRunning, mode }: FocusVisualProps) {
       <div
         aria-hidden
         className={cn(
-          "absolute aspect-square w-[34%] rounded-full blur-2xl transition-opacity duration-1000",
+          "absolute hidden aspect-square w-[34%] rounded-full blur-2xl transition-opacity duration-1000 sm:block",
           mode === "focus" ? "bg-accent/30" : "bg-primary/30",
           isRunning ? "opacity-100" : "opacity-60",
         )}
