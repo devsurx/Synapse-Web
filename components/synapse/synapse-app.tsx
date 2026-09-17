@@ -39,6 +39,12 @@ export function SynapseApp() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-8">
+      {/* Opaque base layer while onboarding: covers the home screen during
+          the gaps when one overlay has unmounted and the next is fading in,
+          so the app chrome never flashes in between. */}
+      {phase !== "ready" && (
+        <div aria-hidden className="fixed inset-0 z-30 bg-background" />
+      )}
       {phase === "splash" && <SplashScreen onDone={handleSplashDone} />}
       {phase === "name" && <NamePrompt onSubmit={handleName} />}
       {phase === "welcome" && userName && (
