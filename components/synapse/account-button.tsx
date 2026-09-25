@@ -1,12 +1,20 @@
 "use client"
 
 import { LogOut, UserRound, X } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAccount } from "@/hooks/use-account"
 import { isAuthAvailable, signIn, signOut, signUp } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 
 type Mode = "signin" | "signup"
+
+export const OPEN_ACCOUNT_EVENT = "synapse:open-account"
+
+/** Lets other components (e.g. the guest sync reminder) open the modal. */
+export function openAccountModal() {
+  if (typeof window === "undefined") return
+  window.dispatchEvent(new CustomEvent(OPEN_ACCOUNT_EVENT))
+}
 
 export function AccountButton() {
   const user = useAccount()
@@ -17,6 +25,16 @@ export function AccountButton() {
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    const open = () => {
+      setError(null)
+      setNotice(null)
+      setOpen(true)
+    }
+    window.addEventListener(OPEN_ACCOUNT_EVENT, open)
+    return () => window.removeEventListener(OPEN_ACCOUNT_EVENT, open)
+  }, [])
 
   if (!isAuthAvailable()) return null
 
