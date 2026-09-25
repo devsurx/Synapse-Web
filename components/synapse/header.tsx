@@ -8,6 +8,7 @@ import { getRank } from "@/lib/ranks"
 import { readStats, subscribeStats } from "@/lib/stats"
 import { StormLayer } from "./storm-layer"
 import { RankChip } from "./rank-chip"
+import { AccountButton } from "./account-button"
 
 interface HeaderProps {
   stormEnabled: boolean
@@ -53,6 +54,8 @@ export function Header({ stormEnabled, onStormToggle, stormFlash }: HeaderProps)
         </div>
       </div>
 
+      <div className="flex items-center gap-2">
+      <AccountButton />
       <button
         type="button"
         onClick={toggle}
@@ -67,6 +70,7 @@ export function Header({ stormEnabled, onStormToggle, stormFlash }: HeaderProps)
         <CloudRain className={cn("size-4", enabled && "animate-pulse")} strokeWidth={1.75} />
         <span className="hidden sm:inline">{enabled ? "Storm on" : "Storm off"}</span>
       </button>
+      </div>
 
       <StormLayer enabled={enabled} flash={flash} />
     </header>

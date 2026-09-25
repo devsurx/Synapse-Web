@@ -1,6 +1,7 @@
 "use client"
 
 import { getSupabase } from "./supabase"
+import { loadJSON, PLANNER_BLOCKS_KEY, saveJSON } from "./tool-storage"
 import type { FocusBlock } from "@/components/synapse/tools/planner-tab"
 
 const SUPABASE_USER_ID_KEY = "synapse:supabase-user-id"
@@ -177,5 +178,131 @@ export async function fetchAdminData(): Promise<{ users: AdminUser[]; blocks: Ad
     }
   } catch {
     return { users: [], blocks: [] }
+  }
+}
+
+function readRawLocalName(): string | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = window.localStorage.getItem("synapse:user-name")?.trim()
+    return raw ? raw.slice(0, 24) : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Runs on sign-in: links this device's cloud row to the account (or finds
+ * the row already owned by it), merges focus totals upward, pushes local
+ * planner blocks (or pulls remote ones onto a fresh device), and adopts the
+ * account's display name when this device has none. Best-effort, never throws.
+ */
+export async function claimAndSyncAccount(): Promise<void> {
+  const sb = getSupabase()
+  if (!sb) return
+  try {
+    const {
+      data: { user },
+    } = await sb.auth.getUser()
+    if (!user) return
+
+    let rowId: number | null = null
+    let remote = { sessions: 0, focusMinutes: 0, name: "" }
+
+    // 1. Row already owned by this account?
+    const owned = await sb
+      .from("users")
+      .select("id,name,focus_minutes,sessions")
+      .eq("auth_id", user.id)
+      .maybeSingle()
+    if (!owned.error && owned.data) {
+      rowId = owned.data.id
+      remote = {
+        sessions: owned.data.sessions ?? 0,
+        focusMinutes: owned.data.focus_minutes ?? 0,
+        name: owned.data.name ?? "",
+      }
+    } else {
+      // 2. Claim this device's anonymous row, or create an owned one.
+      const deviceId = getStoredSupabaseUserId()
+      if (deviceId) {
+        const claimed = await sb
+          .from("users")
+          .update({ auth_id: user.id })
+          .eq("id", deviceId)
+          .is("auth_id", null)
+          .select("id,name,focus_minutes,sessions")
+          .maybeSingle()
+        if (!claimed.error && claimed.data) {
+          rowId = claimed.data.id
+          remote = {
+            sessions: claimed.data.sessions ?? 0,
+            focusMinutes: claimed.data.focus_minutes ?? 0,
+            name: claimed.data.name ?? "",
+          }
+        }
+      }
+      if (rowId === null) {
+        const local = readLocalStats()
+        const inserted = await sb
+          .from("users")
+          .insert({
+            auth_id: user.id,
+            name: readLocalName(),
+            focus_minutes: local.focusMinutes,
+            sessions: local.sessions,
+          })
+          .select("id")
+          .single()
+        if (!inserted.error && inserted.data) rowId = inserted.data.id
+      }
+    }
+    if (rowId === null) return
+    storeSupabaseUserId(rowId)
+
+    // 3. Merge totals upward and push to the owned row.
+    const local = readLocalStats()
+    const mergedSessions = Math.max(local.sessions, remote.sessions)
+    const mergedMinutes = Math.max(local.focusMinutes, remote.focusMinutes)
+    const name = readRawLocalName() ?? (remote.name && remote.name !== "Learner" ? remote.name : readLocalName())
+    await sb
+      .from("users")
+      .update({ name, focus_minutes: mergedMinutes, sessions: mergedSessions })
+      .eq("id", rowId)
+
+    // 4. Fresh device adopts the account's totals, name, and blocks.
+    if (local.sessions === 0 && local.focusMinutes === 0 && (remote.sessions > 0 || remote.focusMinutes > 0)) {
+      const { adoptRemoteTotals } = await import("./stats")
+      adoptRemoteTotals(remote.sessions, remote.focusMinutes)
+      if (!readRawLocalName() && remote.name && remote.name !== "Learner") {
+        try {
+          window.localStorage.setItem("synapse:user-name", remote.name)
+        } catch {}
+      }
+      const { data: remoteBlocks } = await sb
+        .from("planner_blocks")
+        .select("title,duration_minutes,note")
+        .eq("user_id", rowId)
+        .order("created_at", { ascending: true })
+      if (remoteBlocks && remoteBlocks.length > 0) {
+        saveJSON(
+          PLANNER_BLOCKS_KEY,
+          remoteBlocks.map((b) => ({
+            title: b.title,
+            durationMinutes: b.duration_minutes ?? 25,
+            note: b.note ?? "",
+          })),
+        )
+      }
+      return
+    }
+
+    // 5. Device has its own plan — push it up as the account's current plan.
+    const localBlocks = loadJSON<FocusBlock[]>(PLANNER_BLOCKS_KEY, [])
+    if (localBlocks.length > 0) {
+      await syncPlannerBlocks(localBlocks)
+    }
+  } catch {
+    // best-effort only
   }
 }

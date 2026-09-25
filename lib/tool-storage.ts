@@ -38,3 +38,7 @@ export function saveJSON(key: string, value: unknown) {
     window.localStorage.setItem(key, JSON.stringify(value))
   } catch {}
 }
+
+// Shared keys so the planner tab and the account-sync logic stay in sync.
+export const PLANNER_GOALS_KEY = "synapse:planner-goals"
+export const PLANNER_BLOCKS_KEY = "synapse:planner-blocks"

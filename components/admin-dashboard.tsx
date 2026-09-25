@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
-import { fetchAdminData, type AdminBlock, type AdminUser } from "@/lib/sync"
+import type { AdminBlock, AdminUser } from "@/lib/sync"
 import { isSupabaseConfigured } from "@/lib/supabase"
 
 interface LocalSnapshot {
@@ -69,6 +69,8 @@ export function AdminDashboard() {
   const [users, setUsers] = useState<AdminUser[]>([])
   const [blocks, setBlocks] = useState<AdminBlock[]>([])
   const [loading, setLoading] = useState(false)
+  const [limited, setLimited] = useState(false)
+  const [remoteError, setRemoteError] = useState<string | null>(null)
   const supabaseOn = isSupabaseConfigured()
 
   const refresh = useCallback(async () => {
@@ -79,10 +81,27 @@ export function AdminDashboard() {
       return
     }
     setLoading(true)
+    setRemoteError(null)
     try {
-      const data = await fetchAdminData()
-      setUsers(data.users)
-      setBlocks(data.blocks)
+      // Server route: full view with the service-role key, RLS-limited without it.
+      const res = await fetch("/api/admin/data")
+      const data = (await res.json().catch(() => null)) as {
+        users?: AdminUser[]
+        blocks?: AdminBlock[]
+        limited?: boolean
+        reason?: string
+        error?: string
+      } | null
+      if (!res.ok || !data) {
+        setRemoteError(data?.error ?? "Could not load remote data.")
+        return
+      }
+      setUsers(data.users ?? [])
+      setBlocks(data.blocks ?? [])
+      setLimited(Boolean(data.limited))
+      if (data.limited && data.reason) setRemoteError(data.reason)
+    } catch {
+      setRemoteError("Could not reach the server.")
     } finally {
       setLoading(false)
     }
@@ -122,6 +141,13 @@ export function AdminDashboard() {
               ? "Supabase connected — showing every synced user below, plus this device."
               : "Supabase not configured — showing this device only. Set NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY and run supabase/schema.sql to see all devices."}
           </p>
+          {limited && supabaseOn && (
+            <p className="mt-1 text-xs text-amber-500">
+              Limited view: signed-in users&apos; rows are hidden. Add SUPABASE_SERVICE_ROLE_KEY on the server for the
+              full picture.
+            </p>
+          )}
+          {remoteError && !limited && <p className="mt-1 text-xs text-destructive">{remoteError}</p>}
         </div>
         <div className="flex items-center gap-2">
           <button

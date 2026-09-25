@@ -3,7 +3,7 @@
 import { BookOpen, Clock, Loader2, Sparkles, Trash2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useAiStream } from "@/hooks/use-ai-stream"
-import { loadJSON, loadString, removeKey, saveJSON, saveString } from "@/lib/tool-storage"
+import { loadJSON, loadString, removeKey, saveJSON, saveString, PLANNER_BLOCKS_KEY, PLANNER_GOALS_KEY } from "@/lib/tool-storage"
 import { syncPlannerBlocks } from "@/lib/sync"
 import { cn } from "@/lib/utils"
 
@@ -13,8 +13,8 @@ export interface FocusBlock {
   note: string
 }
 
-const GOALS_KEY = "synapse:planner-goals"
-const BLOCKS_KEY = "synapse:planner-blocks"
+const GOALS_KEY = PLANNER_GOALS_KEY
+const BLOCKS_KEY = PLANNER_BLOCKS_KEY
 
 function extractBlocks(text: string): FocusBlock[] | null {
   const start = text.indexOf("[")

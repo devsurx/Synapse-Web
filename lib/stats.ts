@@ -58,6 +58,18 @@ export function readStats(): UserStats {
   return getStats()
 }
 
+/**
+ * Used on first sign-in when this device is fresh but the account already
+ * has totals from another device — adopts the remote totals locally.
+ */
+export function adoptRemoteTotals(sessions: number, focusMinutes: number) {
+  const stats = getStats()
+  stats.sessions = Math.max(stats.sessions, sessions)
+  stats.focusMinutes = Math.max(stats.focusMinutes, focusMinutes)
+  cached = stats
+  save(stats)
+}
+
 export function recordSession(minutes: number) {
   const stats = getStats()
   const key = todayKey()
