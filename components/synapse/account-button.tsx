@@ -157,7 +157,7 @@ export function AccountButton() {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") void submit()
                   }}
-                  placeholder="you@example.com"
+                  placeholder="aishwarya@gmail.com"
                   autoComplete="email"
                   className="rounded-xl border border-border bg-secondary/40 px-4 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-accent/50"
                 />
