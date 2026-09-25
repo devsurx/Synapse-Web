@@ -1,8 +1,9 @@
 "use client"
 
 import { Layers, Loader2, Trash2 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAiStream } from "@/hooks/use-ai-stream"
+import { loadString, saveString } from "@/lib/tool-storage"
 import { cn } from "@/lib/utils"
 
 interface Card {
@@ -17,6 +18,7 @@ interface Deck {
 }
 
 const DECK_KEY = "synapse:flashcards"
+const NOTES_DRAFT_KEY = "synapse:flashcards-notes-draft"
 
 function extractCards(text: string): Card[] | null {
   const start = text.indexOf("[")
@@ -49,11 +51,15 @@ function loadDecks(): Deck[] {
 }
 
 export function FlashcardsTab() {
-  const [notes, setNotes] = useState("")
+  const [notes, setNotes] = useState(() => loadString(NOTES_DRAFT_KEY))
   const [decks, setDecks] = useState<Deck[]>(loadDecks)
   const [activeDeck, setActiveDeck] = useState<Deck | null>(null)
   const [deckOffset, setDeckOffset] = useState(0)
   const [flipped, setFlipped] = useState(false)
+
+  useEffect(() => {
+    saveString(NOTES_DRAFT_KEY, notes)
+  }, [notes])
   const { text, isStreaming, error, send, reset } = useAiStream({
     onComplete: (raw) => {
       const cards = extractCards(raw)

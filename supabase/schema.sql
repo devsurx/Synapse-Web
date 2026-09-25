@@ -32,10 +32,21 @@ create table if not exists public.squad_members (
   primary key (squad_id, user_id)
 );
 
+-- Focus planner blocks (one row per block, replaced on each plan save).
+create table if not exists public.planner_blocks (
+  id bigint generated always as identity primary key,
+  user_id bigint not null references public.users (id) on delete cascade,
+  title text not null,
+  duration_minutes integer not null default 25,
+  note text not null default '',
+  created_at timestamptz not null default now()
+);
+
 alter table public.users enable row level security;
 alter table public.sessions_log enable row level security;
 alter table public.squads enable row level security;
 alter table public.squad_members enable row level security;
+alter table public.planner_blocks enable row level security;
 
 drop policy if exists "public read users" on public.users;
 create policy "public read users" on public.users for select using (true);
@@ -60,3 +71,9 @@ create policy "public read members" on public.squad_members for select using (tr
 
 drop policy if exists "public write members" on public.squad_members;
 create policy "public write members" on public.squad_members for all using (true) with check (true);
+
+drop policy if exists "public read planner_blocks" on public.planner_blocks;
+create policy "public read planner_blocks" on public.planner_blocks for select using (true);
+
+drop policy if exists "public write planner_blocks" on public.planner_blocks;
+create policy "public write planner_blocks" on public.planner_blocks for all using (true) with check (true);

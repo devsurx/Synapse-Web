@@ -1,26 +1,49 @@
 "use client"
 
 import { Loader2, Sprout } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAiStream } from "@/hooks/use-ai-stream"
+import { loadString, removeKey, saveString } from "@/lib/tool-storage"
 import { cn } from "@/lib/utils"
 import { Markdown } from "../markdown"
 
+const CONCEPT_KEY = "synapse:eli5-concept"
+const RESULT_KEY = "synapse:eli5-result"
+
 export function Eli5Tab() {
-  const [concept, setConcept] = useState("")
-  const { text, isStreaming, error, send, reset } = useAiStream()
+  const [concept, setConcept] = useState(() => loadString(CONCEPT_KEY))
+  const [savedResult, setSavedResult] = useState(() => loadString(RESULT_KEY))
+  const { text, isStreaming, error, send, reset } = useAiStream({
+    onComplete: (raw) => {
+      setSavedResult(raw)
+      saveString(RESULT_KEY, raw)
+    },
+  })
+
+  useEffect(() => {
+    saveString(CONCEPT_KEY, concept)
+  }, [concept])
 
   const canSubmit = concept.trim().length > 0 && !isStreaming
 
   const submit = () => {
     if (!canSubmit) return
+    setSavedResult("")
+    removeKey(RESULT_KEY)
     send({
       feature: "eli5",
       messages: [{ role: "user", content: `Explain this like I'm 5: ${concept.trim()}` }],
     })
   }
 
-  const showStream = isStreaming || text.length > 0
+  const visibleText = text.length > 0 ? text : savedResult
+  const showStream = isStreaming || visibleText.length > 0
+
+  const handleClear = () => {
+    reset()
+    setSavedResult("")
+    removeKey(RESULT_KEY)
+  }
 
   return (
     <div className="flex h-full flex-col gap-4 px-6 py-6">
@@ -56,7 +79,7 @@ export function Eli5Tab() {
           {showStream && (
             <button
               type="button"
-              onClick={reset}
+              onClick={handleClear}
               className="rounded-full border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               Clear
@@ -69,7 +92,7 @@ export function Eli5Tab() {
 
       {showStream && (
         <div className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-accent/25 bg-card/60 p-4 animate-in fade-in duration-300">
-          <Markdown>{text}</Markdown>
+          <Markdown>{visibleText}</Markdown>
           {isStreaming && <span className="ml-0.5 inline-block animate-pulse">▍</span>}
         </div>
       )}

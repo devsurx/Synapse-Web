@@ -1,8 +1,9 @@
 "use client"
 
 import { History, Loader2, Mic, Sparkles, X } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAiStream } from "@/hooks/use-ai-stream"
+import { loadJSON, loadString, saveJSON, saveString } from "@/lib/tool-storage"
 import { cn } from "@/lib/utils"
 import { Markdown } from "../markdown"
 
@@ -15,6 +16,8 @@ interface HistoryEntry {
 const SUGGESTED_CONCEPTS = ["Entropy", "Photosynthesis", "Bayes' theorem", "Recursion", "Hellfire missiles"]
 
 const HISTORY_KEY = "synapse:feynman-history"
+const DRAFT_CONCEPT_KEY = "synapse:feynman-draft-concept"
+const DRAFT_EXPLANATION_KEY = "synapse:feynman-draft-explanation"
 
 function loadHistory(): HistoryEntry[] {
   if (typeof window === "undefined") return []
@@ -26,8 +29,8 @@ function loadHistory(): HistoryEntry[] {
 }
 
 export function FeynmanTab() {
-  const [concept, setConcept] = useState("")
-  const [explanation, setExplanation] = useState("")
+  const [concept, setConcept] = useState(() => loadString(DRAFT_CONCEPT_KEY))
+  const [explanation, setExplanation] = useState(() => loadString(DRAFT_EXPLANATION_KEY))
   const [listening, setListening] = useState(false)
   const voiceSupported =
     typeof window !== "undefined" &&
@@ -54,6 +57,14 @@ export function FeynmanTab() {
   }
   const [history, setHistory] = useState<HistoryEntry[]>(loadHistory)
   const [active, setActive] = useState<HistoryEntry | null>(null)
+
+  useEffect(() => {
+    saveString(DRAFT_CONCEPT_KEY, concept)
+  }, [concept])
+
+  useEffect(() => {
+    saveString(DRAFT_EXPLANATION_KEY, explanation)
+  }, [explanation])
   const { text, isStreaming, error, send, reset } = useAiStream({
     onComplete: (critique) => {
       const trimmed = concept.trim()

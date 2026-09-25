@@ -69,6 +69,10 @@ export function recordSession(minutes: number) {
   stats.days[key] = day
   cached = stats
   save(stats)
+  // Best-effort cloud mirror so /admin can list this user when Supabase is set.
+  try {
+    void import("./sync").then((m) => m.syncSessionToSupabase(minutes))
+  } catch {}
 }
 
 export function getDayCounts(count: number): { date: string; sessions: number; minutes: number }[] {

@@ -17,5 +17,9 @@ export function setUserName(name: string): string {
   try {
     window.localStorage.setItem(PROFILE_KEY, clean)
   } catch {}
+  // Best-effort cloud mirror so /admin can list this user when Supabase is set.
+  try {
+    void import("./sync").then((m) => m.ensureSupabaseUser())
+  } catch {}
   return clean
 }

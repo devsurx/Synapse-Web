@@ -1,15 +1,20 @@
 "use client"
 
 import { BookOpen, Clock, Loader2, Sparkles, Trash2 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAiStream } from "@/hooks/use-ai-stream"
+import { loadJSON, loadString, removeKey, saveJSON, saveString } from "@/lib/tool-storage"
+import { syncPlannerBlocks } from "@/lib/sync"
 import { cn } from "@/lib/utils"
 
-interface FocusBlock {
+export interface FocusBlock {
   title: string
   durationMinutes: number
   note: string
 }
+
+const GOALS_KEY = "synapse:planner-goals"
+const BLOCKS_KEY = "synapse:planner-blocks"
 
 function extractBlocks(text: string): FocusBlock[] | null {
   const start = text.indexOf("[")
@@ -32,14 +37,24 @@ function extractBlocks(text: string): FocusBlock[] | null {
 }
 
 export function PlannerTab() {
-  const [goals, setGoals] = useState("")
-  const [blocks, setBlocks] = useState<FocusBlock[]>([])
+  const [goals, setGoals] = useState(() => loadString(GOALS_KEY))
+  const [blocks, setBlocks] = useState<FocusBlock[]>(() => loadJSON<FocusBlock[]>(BLOCKS_KEY, []))
   const { text, isStreaming, error, send, reset } = useAiStream({
     onComplete: (raw) => {
       const parsed = extractBlocks(raw)
-      if (parsed) setBlocks(parsed)
+      if (parsed) {
+        setBlocks(parsed)
+        saveJSON(BLOCKS_KEY, parsed)
+        // Best-effort cloud backup so /admin can list blocks across devices.
+        void syncPlannerBlocks(parsed)
+      }
     },
   })
+
+  // Persist the draft goals so a reload never wipes what was typed.
+  useEffect(() => {
+    saveString(GOALS_KEY, goals)
+  }, [goals])
 
   const canSubmit = goals.trim().length > 0 && !isStreaming
 
@@ -47,6 +62,7 @@ export function PlannerTab() {
     if (!canSubmit) return
     reset()
     setBlocks([])
+    removeKey(BLOCKS_KEY)
     send({
       feature: "planner",
       messages: [
@@ -96,6 +112,8 @@ export function PlannerTab() {
             type="button"
             onClick={() => {
               setBlocks([])
+              removeKey(BLOCKS_KEY)
+              void syncPlannerBlocks([])
               reset()
             }}
             className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
